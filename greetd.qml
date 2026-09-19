@@ -459,6 +459,21 @@ ShellRoot {
             if (root.selectedDE < root.detectedDECommands.length)
                 command = [root.detectedDECommands[root.selectedDE]]
 
+            // start-hyprland（upstream Hyprland 0.56+ 引入）默认通过 PATH
+            // 查找 Hyprland 二进制并 execvp。greetd 给用户会话传的 PATH 是
+            // FHS 默认值（/usr/local/bin:/usr/bin:/bin），不包含 NixOS
+            // Hyprland 的 store 路径，于是 execvp 失败、start-hyprland 立刻
+            // 退出，greetd 看到会话结束就回到登录界面。
+            //
+            // 修复：检测到 Exec 指向 start-hyprland 时，用它的 --path 选项
+            // 把 Hyprland 二进制的绝对路径显式传进去（同一目录下的 Hyprland
+            // wrapper 脚本，最终 exec -a Hyprland .Hyprland-wrapped）。
+            var exe = command[0]
+            if (exe.endsWith("/start-hyprland")) {
+                var binDir = exe.substring(0, exe.length - "/start-hyprland".length)
+                command = [exe, "--path", binDir + "/Hyprland"]
+            }
+
             Log.info("greetd.qml", "Launching command: " + command)
             Greetd.launch(command)
         }

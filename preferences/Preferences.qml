@@ -89,8 +89,16 @@ Singleton {
         // Don't re-spawn when:
         //  - this Preferences instance is the welcome config itself (it set
         //    `suppressWelcomeSpawn` on startup), or
+        //  - we're already in the greetd greeter process (HOME points at the
+        //    greeter's throwaway home which has no preferences.json; also the
+        //    lock file /tmp/whisker.lck left over from a previous user
+        //    session would point at the user's whisker share and cause
+        //    `whisker welcome` to spawn the welcome wizard in the greeter
+        //    context, which crashes the login), or
         //  - we've already spawned a welcome in this process, or
         //  - the user has finished setup.
+        if (Quickshell.env("HOME") === "/var/lib/whisker/greeter-home")
+            return;
         if (root.suppressWelcomeSpawn || root.spawnedWelcome || root.misc.finishedSetup)
             return;
         root.spawnedWelcome = true;

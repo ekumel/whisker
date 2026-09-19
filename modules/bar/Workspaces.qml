@@ -71,39 +71,43 @@ Item {
         }
     }
 
-    WheelHandler {
-        id: wheel
-        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        target: root
-        property real accumulatedDelta: 0
-        property real threshold: 100
+    property real _wheelDelta: 0
+    readonly property real _wheelThreshold: 100
 
-        onWheel: (event) => {
-            const total = Hyprland.fullWorkspaces.count
-            const current = Hyprland.focusedWorkspace.id
+    // Scroll up steps back one workspace; the number cannot go below 1.
+    // Scroll down steps forward with no upper bound. Accumulating the delta
+    // keeps high-resolution touchpad scrolling from flying through workspaces.
+    function handleWheelDelta(delta) {
+        _wheelDelta += delta
 
-            accumulatedDelta += verticalMode ? event.angleDelta.x : event.angleDelta.y
+        if (Math.abs(_wheelDelta) < _wheelThreshold)
+            return
 
-            if (Math.abs(accumulatedDelta) >= threshold) {
-                if (accumulatedDelta > 0) {
-                    if (current > 1)
-                        Hyprland.dispatch("hl.dsp.focus({ workspace = \"-1\" })")
-                } else {
-                    if (current < total)
-                        Hyprland.dispatch("hl.dsp.focus({ workspace = \"1\" })")
-
-                }
-
-                accumulatedDelta = 0
-            }
-
-            event.accepted = true
+        if (_wheelDelta > 0) {
+            if (Hyprland.activeWsId > 1)
+                Hyprland.dispatch("hl.dsp.focus({ workspace = \"-1\" })")
+        } else {
+            // "+1" is relative (next workspace); "1" would be absolute.
+            Hyprland.dispatch("hl.dsp.focus({ workspace = \"+1\" })")
         }
+
+        _wheelDelta = 0
     }
+
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         hoverEnabled: true
+
+        onWheel: (wheel) => {
+            // A mouse wheel reports vertical deltas regardless of how the
+            // widget is rotated, so always read the y axis. The pixelDelta
+            // fallback covers high-resolution touchpad scrolling.
+            const angle = wheel.angleDelta.y
+            const pixel = wheel.pixelDelta.y
+            root.handleWheelDelta(angle !== 0 ? angle : pixel * 8)
+            wheel.accepted = true
+        }
 
         onClicked: {
             if (popout.isVisible)

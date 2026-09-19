@@ -172,21 +172,24 @@ BaseMenu {
             id: langDropDown
             implicitWidth: 180
 
+            // Index 0 is the "follow system" entry; the rest map to the
+            // supported language codes.
             model: {
                 const codes = Translations.availableLanguages || [];
-                return codes.map(c => Translations.languageName(c));
+                return [Translations.tr("settings.language_system")].concat(codes.map(c => Translations.languageName(c)));
             }
 
             currentIndex: {
+                const saved = Preferences.misc.language;
                 const codes = Translations.availableLanguages || [];
-                const i = codes.indexOf(Translations.currentLanguage);
-                return i >= 0 ? i : 0;
+                const i = codes.indexOf(saved);
+                return i >= 0 ? i + 1 : 0;
             }
 
             onSelectedIndexChanged: (idx) => {
+                if (idx < 0) return;
                 const codes = Translations.availableLanguages || [];
-                const code = codes[idx] || "";
-                if (code === "") return;
+                const code = idx === 0 ? "" : (codes[idx - 1] || "");
                 Translations.setLanguage(code);
                 Quickshell.execDetached({
                     command: ['whisker', 'prefs', 'set', 'misc.language', code]

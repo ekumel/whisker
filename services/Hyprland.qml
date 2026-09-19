@@ -43,6 +43,39 @@ Singleton {
                 return false;
             }
         }
+
+        function hasFloatingWindow() {
+            try {
+                if (!root.focusedWorkspace?.toplevels)
+                    return false;
+
+                for (let toplevel of root.focusedWorkspace.toplevels.values) {
+                    if (toplevel && toplevel.lastIpcObject?.floating) {
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function hasFullscreenWindow() {
+            try {
+                if (!root.focusedWorkspace?.toplevels)
+                    return false;
+
+                for (let toplevel of root.focusedWorkspace.toplevels.values) {
+                    const ipc = toplevel.lastIpcObject;
+                    if (toplevel && ipc && (ipc.fullscreen === 1 || ipc.fullscreen === 2)) {
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
     }
 
     function monitorFor(screen: ShellScreen): HyprlandMonitor {
@@ -131,6 +164,7 @@ Singleton {
                     Hyprland.refreshToplevels();
                     Hyprland.refreshWorkspaces();
                     root.refreshWorkspaces();
+                    needsRefresh = true;
                 }
                 if (needsRefresh) {
                     root.refreshWorkspaces();

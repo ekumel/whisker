@@ -75,6 +75,7 @@
         "power_description": "电源和电池设置。",
         "language": "语言",
         "language_description": "选择界面语言。",
+        "language_system": "跟随系统",
         "keybinds": "快捷键",
         "keybinds_description": "查看键盘快捷键。",
         "section_visualizers": "可视化",

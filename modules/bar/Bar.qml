@@ -32,7 +32,6 @@ Scope {
                     return ExclusionMode.Auto;
                 return ExclusionMode.Ignore;
             }
-            exclusiveZone: 1
 
             WlrLayershell.layer: WlrLayer.Top
             WlrLayershell.namespace: 'whisker:bar'

@@ -6,7 +6,7 @@ import Quickshell.Widgets
 import Quickshell.Wayland
 import Quickshell.Io
 import qs.modules
-import qs.services
+import qs.services as WhiskerServ
 import qs.preferences
 import qs.components
 import qs.components.effects
@@ -72,6 +72,7 @@ PanelWindow {
 
         if (newIsVideo) {
             currentImage.opacity = 0;
+            _lastPauseSent = false;
             startMpvpaperForAllMonitors();
         } else {
             currentImage.source = currentWallpaper;
@@ -85,9 +86,20 @@ PanelWindow {
     Component.onCompleted: {
         if (isVideo) {
             startMpvpaperForAllMonitors();
+            // Schedule initial pause-state sync after mpvpaper has had a chance
+            // to create its IPC socket. Without this delay the first IPC send
+            // can race the socket creation and silently fail.
+            pauseSyncTimer.restart();
         }
         // Reference the rotation service so it loads with the wallpaper window
         WallpaperRotation.listDir();
+    }
+
+    Timer {
+        id: pauseSyncTimer
+        interval: 1500
+        repeat: false
+        onTriggered: updateMpvpaperPlayback()
     }
 
     function fillModeFromPref(mode) {
@@ -105,7 +117,7 @@ PanelWindow {
 
         stopAllMpvpaper();
 
-        var monitors = Hyprland.monitors?.values || [];
+        var monitors = WhiskerServ.Hyprland.monitors?.values || [];
         Log.info("windows/wallpaper/Wallpaper.qml", "Starting mpvpaper for " + monitors.length + " monitors");
 
         monitors.forEach(monitor => {
@@ -149,7 +161,36 @@ PanelWindow {
             property string monitorName: ""
             property string videoPath: ""
 
-            command: ["mpvpaper", "-o", "no-audio loop", monitorName, videoPath]
+            command: {
+                var opts = [];
+                opts.push("keep-open");
+                opts.push("load-scripts=no");
+                opts.push("load-stats-overlay=no");
+                opts.push("input-ipc-server=/tmp/whisker-mpvpaper-" + monitorName + ".sock");
+
+                if (!Preferences.theme.videoWallpaper.hwdec) {
+                    opts.push("hwdec=no");
+                }
+
+                var fps = Preferences.theme.videoWallpaper.fps;
+                if (fps > 0) {
+                    opts.push("fps=" + fps);
+                    opts.push("framedrop=vo");
+                }
+
+                opts.push("no-audio");
+                opts.push("loop");
+
+                // XDG_CONFIG_HOME is redirected so mpv doesn't read mpv.conf or
+                // load any Lua scripts from the user's config dir. The directory
+                // must already exist (or be auto-created) -- we mkdir below.
+                var xdgDir = "/tmp/whisker-mpv-empty-" + monitorName;
+                var mpvpaperCmd = "mpvpaper -o " + shellQuote(opts.join(" ")) + " " +
+                                   shellQuote(monitorName) + " " + shellQuote(videoPath);
+                return ["sh", "-c", "mkdir -p " + shellQuote(xdgDir) +
+                                    " && XDG_CONFIG_HOME=" + shellQuote(xdgDir) +
+                                    " exec " + mpvpaperCmd];
+            }
             running: true
 
             stdout: SplitParser {
@@ -173,17 +214,68 @@ PanelWindow {
     }
 
     Connections {
-        target: Hyprland
+        target: WhiskerServ.Hyprland
         function onWorkspaceUpdated() {
-            updateMpvpaperPlayback();
+            // Defer so the IPC refresh triggered by our handler has time
+            // to populate the toplevel/workspace caches before we read them.
+            Qt.callLater(updateMpvpaperPlayback);
+        }
+        function onRawEvent(event) {
+            const n = event?.name || "";
+            if (!n.endsWith("v2")) return;
+            if (n.includes("fullscreen") || n.includes("changefloatingmode") ||
+                n === "openwindow>>v2" || n === "closewindow>>v2" ||
+                n === "movewindow>>v2" || n === "minimize>>v2") {
+                Qt.callLater(updateMpvpaperPlayback);
+            }
         }
     }
+
+    property bool _lastPauseSent: false
 
     function updateMpvpaperPlayback() {
         if (!isVideo)
             return;
 
-        var hasTiling = Hyprland.currentWorkspace.hasTilingWindow();
+        var p = Preferences.theme.videoWallpaper;
+        var shouldPause = false;
+
+        try {
+            if (WhiskerServ.Hyprland.currentWorkspace.hasWindow) {
+                if (p.pauseOnAnyWindow) {
+                    shouldPause = true;
+                } else {
+                    if (p.pauseOnFullscreen && WhiskerServ.Hyprland.currentWorkspace.hasFullscreenWindow())
+                        shouldPause = true;
+                    else if (p.pauseOnFloating && WhiskerServ.Hyprland.currentWorkspace.hasFloatingWindow())
+                        shouldPause = true;
+                    else if (p.pauseOnTiled && WhiskerServ.Hyprland.currentWorkspace.hasTilingWindow())
+                        shouldPause = true;
+                }
+            }
+        } catch (e) {
+            console.warn("Wallpaper: pause check failed", e);
+        }
+
+        if (shouldPause === _lastPauseSent)
+            return;
+
+        _lastPauseSent = shouldPause;
+        Log.info("windows/wallpaper/Wallpaper.qml", "Setting mpvpaper pause=" + shouldPause + " for " + mpvpaperProcesses.length + " process(es)");
+
+        var payload = JSON.stringify({ command: ["set_property", "pause", shouldPause] });
+        mpvpaperProcesses.forEach(proc => {
+            if (!proc)
+                return;
+            var sockPath = "/tmp/whisker-mpvpaper-" + proc.monitorName + ".sock";
+            Quickshell.execDetached({
+                command: ["sh", "-c", "printf '%s\\n' " + shellQuote(payload) + " | nc -U -w 1 " + shellQuote(sockPath)]
+            });
+        });
+    }
+
+    function shellQuote(s) {
+        return "'" + String(s).replace(/'/g, "'\\''") + "'";
     }
 
     Item {
@@ -290,7 +382,7 @@ PanelWindow {
                     easing.type: Appearance.animation.easing
                 }
             }
-            visible: !Hyprland.currentWorkspace.hasTilingWindow()
+            visible: !WhiskerServ.Hyprland.currentWorkspace.hasTilingWindow()
         }
 
         Lyrics {
@@ -298,7 +390,7 @@ PanelWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: Preferences.bar.position === "bottom" ? widgetShift : widgetOffset
-            visible: Preferences.widgets.showLyrics && !Preferences.widgets.lyricsAsOverlay && !Hyprland.currentWorkspace.hasTilingWindow()
+            visible: Preferences.widgets.showLyrics && !Preferences.widgets.lyricsAsOverlay && !WhiskerServ.Hyprland.currentWorkspace.hasTilingWindow()
         }
     }
 

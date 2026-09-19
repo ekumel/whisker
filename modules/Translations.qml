@@ -56,7 +56,10 @@ Singleton {
 
     function applyPreferredOrDetected() {
         const pref = Preferences.misc.language;
-        if (pref && pref !== "") {
+        // Empty preference means "follow system". Unknown codes also fall
+        // back to system detection so a removed/typo'd language never leaves
+        // the UI stuck on an unavailable catalog.
+        if (pref && pref !== "" && availableLanguages.indexOf(pref) !== -1) {
             if (currentLanguage !== pref) {
                 currentLanguage = pref;
                 revision++;
@@ -67,9 +70,18 @@ Singleton {
         }
     }
 
+    // Resolves the system locale to a supported language. Falls back to
+    // English when the system language has no catalog.
     function detectSystemLocale() {
         const loc = (Qt.locale().name || "").toLowerCase();
-        const target = loc.startsWith("zh") ? "zh" : "en";
+        let target = "en";
+        for (let i = 0; i < availableLanguages.length; i++) {
+            const code = availableLanguages[i];
+            if (code !== "en" && (loc === code || loc.startsWith(code + "_") || loc.startsWith(code + "-"))) {
+                target = code;
+                break;
+            }
+        }
         if (currentLanguage === target)
             return;
         currentLanguage = target;

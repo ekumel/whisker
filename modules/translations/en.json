@@ -75,6 +75,7 @@
         "power_description": "Power and battery settings.",
         "language": "Language",
         "language_description": "Choose the interface language.",
+        "language_system": "Follow system",
         "keybinds": "Keybinds",
         "keybinds_description": "View keyboard shortcuts.",
         "section_visualizers": "Visualizers",

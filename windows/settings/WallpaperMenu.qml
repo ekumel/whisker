@@ -24,12 +24,16 @@ BaseMenu {
         property var wallpapers: []
         property var filteredWallpapers: []
         property int currentPage: 0
-        readonly property int pageSize: 24
+        readonly property int gridColumns: Math.max(1, Math.floor((wpFlick.width - 20) / 150))
+        // Two rows per page keeps the number of live video thumbnails low
+        // enough that paging stays smooth.
+        readonly property int pageSize: gridColumns * 2
         readonly property int totalPages: Math.max(1, Math.ceil(filteredWallpapers.length / pageSize))
         readonly property var pagedWallpapers: filteredWallpapers.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
 
         onWallpapersChanged: updateFiltered()
         onFilteredWallpapersChanged: currentPage = 0
+        onTotalPagesChanged: currentPage = Math.min(currentPage, totalPages - 1)
 
         Connections {
             target: WallpaperRotation
@@ -90,8 +94,11 @@ BaseMenu {
             }
 
             Flickable {
+                id: wpFlick
                 Layout.fillWidth: true
-                Layout.preferredHeight: 460
+                // Fit the two rows on this page instead of reserving the old
+                // multi-row viewport, so the card doesn't leave a big gap.
+                Layout.preferredHeight: Math.max(120, Math.min(460, contentHeight))
                 clip: true
                 contentWidth: width
                 contentHeight: gridContent.childrenRect.height
@@ -103,7 +110,7 @@ BaseMenu {
                     anchors.right: parent.right
                     anchors.leftMargin: 10
                     anchors.rightMargin: 10
-                    columns: Math.max(1, Math.floor((parent.width - 20) / 150))
+                    columns: wpSelectorCard.gridColumns
                     spacing: 10
 
                     Repeater {
@@ -155,10 +162,10 @@ BaseMenu {
                                         fillMode: Image.PreserveAspectCrop
                                         asynchronous: true
                                         cache: true
-                                        // Thumbnail: downscale to a max of 240px on the
-                                        // longest side to speed up loading.
-                                        sourceSize.width: Math.min(parent.width, 240)
-                                        sourceSize.height: Math.min(parent.height, 240)
+                                        // Thumbnail: downscale to a max of 120px on the
+                                        // longest side to speed up loading and rendering.
+                                        sourceSize.width: Math.min(parent.width, 120)
+                                        sourceSize.height: Math.min(parent.height, 120)
                                         visible: !itemIsVideo
                                     }
 
@@ -475,6 +482,159 @@ BaseMenu {
                 checked: Preferences.misc.applyWallpaperToGreeter
                 onToggled: {
                     Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'misc.applyWallpaperToGreeter', checked] })
+                }
+            }
+        }
+    }
+
+    BaseCard {
+        SliderOption {
+            title: "Video frame rate"
+            description: "Cap the frame rate of video wallpapers. Set to 0 for unlimited."
+            prefField: "theme.videoWallpaper.fps"
+            from: 0
+            to: 144
+            stepSize: 1
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            ColumnLayout {
+                spacing: 2
+                StyledText {
+                    text: "Hardware decoding"
+                    font.pixelSize: 15
+                    color: Appearance.colors.m3on_surface
+                }
+                StyledText {
+                    text: "Use GPU-accelerated decoding for video wallpapers (recommended)."
+                    font.pixelSize: 12
+                    color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Item { Layout.fillWidth: true }
+            StyledSwitch {
+                checked: Preferences.theme.videoWallpaper.hwdec
+                onToggled: {
+                    Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'theme.videoWallpaper.hwdec', checked] })
+                }
+            }
+        }
+    }
+
+    BaseCard {
+        StyledText {
+            text: "Pause video wallpaper when..."
+            font.pixelSize: 14
+            font.bold: true
+            color: Appearance.colors.m3on_surface
+            Layout.fillWidth: true
+            Layout.topMargin: 4
+            Layout.bottomMargin: 4
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            ColumnLayout {
+                spacing: 2
+                StyledText {
+                    text: "Workspace has any window"
+                    font.pixelSize: 15
+                    color: Appearance.colors.m3on_surface
+                }
+                StyledText {
+                    text: "Pause playback whenever the active workspace contains at least one window."
+                    font.pixelSize: 12
+                    color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Item { Layout.fillWidth: true }
+            StyledSwitch {
+                checked: Preferences.theme.videoWallpaper.pauseOnAnyWindow
+                onToggled: {
+                    Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'theme.videoWallpaper.pauseOnAnyWindow', checked] })
+                }
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            ColumnLayout {
+                spacing: 2
+                StyledText {
+                    text: "Floating window present"
+                    font.pixelSize: 15
+                    color: Appearance.colors.m3on_surface
+                }
+                StyledText {
+                    text: "Pause playback while a floating window is on the active workspace."
+                    font.pixelSize: 12
+                    color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Item { Layout.fillWidth: true }
+            StyledSwitch {
+                checked: Preferences.theme.videoWallpaper.pauseOnFloating
+                onToggled: {
+                    Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'theme.videoWallpaper.pauseOnFloating', checked] })
+                }
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            ColumnLayout {
+                spacing: 2
+                StyledText {
+                    text: "Tiled window present"
+                    font.pixelSize: 15
+                    color: Appearance.colors.m3on_surface
+                }
+                StyledText {
+                    text: "Pause playback while a tiled (non-floating) window is on the active workspace."
+                    font.pixelSize: 12
+                    color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Item { Layout.fillWidth: true }
+            StyledSwitch {
+                checked: Preferences.theme.videoWallpaper.pauseOnTiled
+                onToggled: {
+                    Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'theme.videoWallpaper.pauseOnTiled', checked] })
+                }
+            }
+        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+            ColumnLayout {
+                spacing: 2
+                StyledText {
+                    text: "Fullscreen window present"
+                    font.pixelSize: 15
+                    color: Appearance.colors.m3on_surface
+                }
+                StyledText {
+                    text: "Pause playback while a fullscreen window is on the active workspace."
+                    font.pixelSize: 12
+                    color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
+                }
+            }
+            Item { Layout.fillWidth: true }
+            StyledSwitch {
+                checked: Preferences.theme.videoWallpaper.pauseOnFullscreen
+                onToggled: {
+                    Quickshell.execDetached({ command: ['whisker', 'prefs', 'set', 'theme.videoWallpaper.pauseOnFullscreen', checked] })
                 }
             }
         }

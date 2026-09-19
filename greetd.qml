@@ -22,6 +22,12 @@ ShellRoot {
     property bool showUserInput: false
     property int selectedDE: 0
 
+    // greetd session runs under /var/lib/whisker/greeter-home (no user
+    // preferences.json), so Preferences.misc.finishedSetup defaults to false
+    // and `onReloaded` would otherwise spawn the welcome wizard. Suppress it
+    // here, matching welcome.qml's own guard.
+    Component.onCompleted: Preferences.suppressWelcomeSpawn = true
+
     Process {
         id: getUsersProcess
         running: true

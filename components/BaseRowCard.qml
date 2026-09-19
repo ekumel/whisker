@@ -4,8 +4,8 @@ import qs.modules
 
 Item {
     id: baseCard
-    anchors.left: parent.left
-    anchors.right: parent.right
+    Layout.fillWidth: true
+    implicitWidth: wpBG.implicitWidth
     implicitHeight: wpBG.implicitHeight
     default property alias content: contentArea.data
     property alias color: wpBG.color
@@ -18,6 +18,7 @@ Item {
         id: wpBG
         anchors.left: parent.left
         anchors.right: parent.right
+        implicitWidth: contentArea.implicitWidth + baseCard.cardMargin * 2
         implicitHeight: contentArea.implicitHeight + baseCard.verticalPadding
         Behavior on implicitHeight {
             NumberAnimation {

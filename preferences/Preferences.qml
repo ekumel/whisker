@@ -47,6 +47,15 @@ Singleton {
         property int rotationMode: 0
         // -1 = unset (will pick first wallpaper deterministically)
         property int rotationLastIndex: -1
+
+        property QtObject videoWallpaper: QtObject {
+            property int fps: 30
+            property bool hwdec: true
+            property bool pauseOnAnyWindow: false
+            property bool pauseOnFloating: false
+            property bool pauseOnTiled: false
+            property bool pauseOnFullscreen: true
+        }
     }
 
     property QtObject misc: QtObject {

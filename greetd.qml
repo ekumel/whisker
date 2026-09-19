@@ -43,7 +43,22 @@ ShellRoot {
     Process {
         id: getDEsProcess
         running: true
-        command: ["bash", "-c", "find /usr/share/wayland-sessions/ -name '*.desktop' 2>/dev/null | while read f; do name=$(grep '^Name=' \"$f\" | cut -d= -f2); exec=$(grep '^Exec=' \"$f\" | cut -d= -f2); echo \"$name|||$exec\"; done"]
+        // 遍历 XDG_DATA_DIRS 下所有 wayland-sessions/（包括 NixOS 上
+        // /nix/store/*/share），并把 /usr/share、/run/current-system/sw/share
+        // 作为兜底。只搜 /usr/share 在 NixOS 上找不到任何 .desktop，
+        // dropdown 会回退到 "Default Session" → bash，bash 没有 tty 立刻
+        // 退出，greetd 就把会话关闭回到登录界面。
+        command: ["bash", "-c",
+            "dirs=\"${XDG_DATA_DIRS:-/usr/local/share:/usr/share}:/usr/share:/run/current-system/sw/share\"; " +
+            "IFS=:; for d in $dirs; do [ -d \"$d/wayland-sessions\" ] && find \"$d/wayland-sessions\" -maxdepth 1 -name '*.desktop' 2>/dev/null; done | sort -u | while read f; do " +
+            "name=$(grep '^Name=' \"$f\" | cut -d= -f2-); " +
+            "exec=$(grep '^Exec=' \"$f\" | cut -d= -f2-); " +
+            // Hyprland 在 NixOS 上同时装了一份 hyprland-uwsm.desktop（Exec
+            // 以 uwsm 开头）。greetd 给用户会话的 PATH 不含 uwsm store
+            // 路径，选了它会立即退出回到 greeter。直接过滤掉。
+            "case \"$exec\" in uwsm*) continue;; esac; " +
+            "echo \"$name|||$exec\"; " +
+            "done"]
         stdout: StdioCollector {
             onStreamFinished: {
                 var lines = text.trim().split('\n').filter(l => l.length > 0)

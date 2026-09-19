@@ -55,25 +55,26 @@ Scope {
             onClosing: Globals.visible_settingsMenu = false
 
             property var menuModel: {
+                const _ = Translations.revision;
                 var raw = [
-                    { header: true, label: "Connections" },
-                    { icon: "language", label: "Network", component: "NetworkMenu" },
-                    { icon: "bluetooth", label: "Bluetooth", component: "BluetoothMenu" },
-                    { icon: "vpn_key", label: "VPN", component: "VPNMenu" },
-                    { header: true, label: "System" },
-                    { icon: "volume_up", label: "Sounds", component: "SoundsMenu" },
-                    { icon: "power", label: "Power", component: "PowerMenu" },
-                    { header: true, label: "Customization" },
-                    { icon: "wallpaper", label: "Wallpaper", component: "WallpaperMenu" },
-                    { icon: "palette", label: "Colors", component: "ColorsMenu" },
-                    { icon: "horizontal_rule", label: "Bar", component: "BarMenu" },
-                    { icon: "widgets", label: "Widgets", component: "WidgetsMenu" },
-                    // { icon: "tune", label: "Misc", component: "MiscMenu" },
-                    { header: true, label: "User" },
-                    { icon: "account_circle", label: "Profile", component: "UserMenu" },
-                    { header: true, label: "About" },
-                    { icon: "info", label: "System", component: "SystemMenu" },
-                    { icon: "help", label: "About", component: "AboutMenu" }
+                    { header: true, label: Translations.tr("settings.section_connections") },
+                    { icon: "language", label: Translations.tr("settings.network"), component: "NetworkMenu" },
+                    { icon: "bluetooth", label: Translations.tr("settings.bluetooth"), component: "BluetoothMenu" },
+                    { icon: "vpn_key", label: Translations.tr("settings.vpn"), component: "VPNMenu" },
+                    { header: true, label: Translations.tr("settings.section_system") },
+                    { icon: "volume_up", label: Translations.tr("settings.sounds"), component: "SoundsMenu" },
+                    { icon: "power", label: Translations.tr("settings.power"), component: "PowerMenu" },
+                    { header: true, label: Translations.tr("settings.section_customization") },
+                    { icon: "wallpaper", label: Translations.tr("settings.wallpaper"), component: "WallpaperMenu" },
+                    { icon: "palette", label: Translations.tr("settings.colors"), component: "ColorsMenu" },
+                    { icon: "horizontal_rule", label: Translations.tr("settings.bar"), component: "BarMenu" },
+                    { icon: "widgets", label: Translations.tr("settings.widgets"), component: "WidgetsMenu" },
+                    { icon: "tune", label: Translations.tr("settings.section_misc"), component: "MiscMenu" },
+                    { header: true, label: Translations.tr("settings.section_user") },
+                    { icon: "account_circle", label: Translations.tr("settings.profile"), component: "UserMenu" },
+                    { header: true, label: Translations.tr("settings.section_about") },
+                    { icon: "info", label: Translations.tr("settings.system_info"), component: "SystemMenu" },
+                    { icon: "help", label: Translations.tr("settings.about"), component: "AboutMenu" }
                 ];
                 var pageCounter = 0;
                 return raw.map(function (item) {
@@ -163,7 +164,7 @@ Scope {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 42
                                 icon: "edit"
-                                text: "Config file"
+                                text: Translations.tr("settings.config_file")
                                 visible: !root.sidebarCollapsed
                                 bottomRightRadius: root.sidebarCollapsed ? 100 : 5
                                 topRightRadius: root.sidebarCollapsed ? 100 : 5

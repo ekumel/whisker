@@ -63,5 +63,27 @@ BaseMenu {
             stepSize: 0.2
             visible: !smartSwitch.checked
         }
+
+        SliderOption {
+            title: "Video wallpaper frame"
+            description: "Which frame index to extract for color generation (videos only)."
+            prefField: "theme.videoFrame"
+            from: 0
+            to: 60
+            stepSize: 1
+            visible: Preferences.theme.wallpaper !== "" && Utils.isVideo(Preferences.theme.wallpaper)
+        }
+
+        SwitchOption {
+            title: "Color cache"
+            description: "Cache generated color schemes in ~/.cache to avoid re-running matugen on the same wallpaper."
+            prefField: "theme.useColorCache"
+        }
+
+        SwitchOption {
+            title: "Run user matugen templates"
+            description: "After color regen, invoke every file in ~/.config/matugen/ as a matugen template."
+            prefField: "theme.runUserMatugenTemplate"
+        }
     }
 }

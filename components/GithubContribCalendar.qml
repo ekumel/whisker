@@ -43,15 +43,10 @@ Item {
             }
             StyledText { text: "•"; font.pixelSize: 10; color: Appearance.colors.m3on_surface_variant}
             StyledText {
-                text: Github.contributionNumber
+                text: Translations.tr("settings.github_contributions_count", Github.contributionNumber)
                 font.pixelSize: 10
                 font.family: "Outfit SemiBold"
 
-                color: Appearance.colors.m3on_surface_variant
-            }
-            StyledText {
-                text: "contributions in the last year"
-                font.pixelSize: 10
                 color: Appearance.colors.m3on_surface_variant
             }
             Item { Layout.fillWidth: true }

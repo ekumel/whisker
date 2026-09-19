@@ -8,17 +8,17 @@ import qs.preferences
 import qs.services
 
 BaseMenu {
-    title: "Widgets"
-    description: "Configure widgets and overlays displayed on your desktop."
+    title: Translations.tr("settings.widgets")
+    description: Translations.tr("settings.widgets_description")
 
     BaseCard {
         ColumnLayout {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "bar_chart"; text: "Visualizers" }
-            SwitchOption { title: "Enable Visualizers"; description: "Display audio visualizers on the shell"; prefField: "misc.cavaEnabled" }
-            SwitchOption { title: "Render Overview Windows"; description: "Render window previews in the overview"; prefField: "misc.renderOverviewWindows" }
+            SectionTitle { icon: "bar_chart"; text: Translations.tr("settings.section_visualizers") }
+            SwitchOption { title: Translations.tr("settings.switch_enable_visualizers"); description: Translations.tr("settings.switch_enable_visualizers_desc"); prefField: "misc.cavaEnabled" }
+            SwitchOption { title: Translations.tr("settings.switch_render_overview"); description: Translations.tr("settings.switch_render_overview_desc"); prefField: "misc.renderOverviewWindows" }
         }
     }
 
@@ -27,11 +27,11 @@ BaseMenu {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "lyrics"; text: "Music Widget" }
-            SwitchOption { title: "Show Lyrics"; description: "Display song lyrics on your desktop"; prefField: "widgets.showLyrics" }
-            SwitchOption { visible: Preferences.widgets.showLyrics; title: "Lyrics Overlay Mode"; description: "Show lyrics on top of all windows instead of just the desktop"; prefField: "widgets.lyricsAsOverlay" }
-            SwitchOption { visible: Preferences.widgets.showLyrics; title: "Translate Lyrics"; description: "Display translated lyrics alongside the original text"; prefField: "misc.translateLyrics" }
-            TextFieldOption { visible: Preferences.misc.translateLyrics && Preferences.widgets.showLyrics; title: "Translation Language"; description: "Language code for translations (e.g., en, id, ja, ko)"; prefField: "misc.lyricsLanguage"; placeholder: "en" }
+            SectionTitle { icon: "lyrics"; text: Translations.tr("settings.section_music_widget") }
+            SwitchOption { title: Translations.tr("settings.switch_show_lyrics"); description: Translations.tr("settings.switch_show_lyrics_desc"); prefField: "widgets.showLyrics" }
+            SwitchOption { visible: Preferences.widgets.showLyrics; title: Translations.tr("settings.switch_lyrics_overlay"); description: Translations.tr("settings.switch_lyrics_overlay_desc"); prefField: "widgets.lyricsAsOverlay" }
+            SwitchOption { visible: Preferences.widgets.showLyrics; title: Translations.tr("settings.switch_translate_lyrics"); description: Translations.tr("settings.switch_translate_lyrics_desc"); prefField: "misc.translateLyrics" }
+            TextFieldOption { visible: Preferences.misc.translateLyrics && Preferences.widgets.showLyrics; title: Translations.tr("settings.field_translation_language"); description: Translations.tr("settings.field_translation_language_desc"); prefField: "misc.lyricsLanguage"; placeholder: "en" }
 
             Item {
                 visible: Preferences.misc.translateLyrics && Preferences.widgets.showLyrics;
@@ -41,7 +41,7 @@ BaseMenu {
                     anchors.centerIn: parent
                     spacing: 6
                     MaterialIcon { icon: "translate"; font.pixelSize: 32; color: Colors.opacify(Appearance.colors.m3on_surface, 0.3); Layout.alignment: Qt.AlignHCenter }
-                    StyledText { text: "Powered by Google Translate"; font.pixelSize: 11; color: Colors.opacify(Appearance.colors.m3on_surface, 0.5); Layout.alignment: Qt.AlignHCenter }
+                    StyledText { text: Translations.tr("common.powered_by", "Google Translate"); font.pixelSize: 11; color: Colors.opacify(Appearance.colors.m3on_surface, 0.5); Layout.alignment: Qt.AlignHCenter }
                 }
             }
         }
@@ -52,9 +52,9 @@ BaseMenu {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "schedule"; text: "Desktop" }
-            SwitchOption { title: "Desktop Clock"; description: "Display time and date on your desktop"; prefField: "widgets.desktop.clock" }
-            SwitchOption { title: "Desktop Player"; description: "Show a music player widget on your desktop"; prefField: "widgets.desktop.player" }
+            SectionTitle { icon: "schedule"; text: Translations.tr("settings.section_desktop") }
+            SwitchOption { title: Translations.tr("settings.switch_desktop_clock"); description: Translations.tr("settings.switch_desktop_clock_desc"); prefField: "widgets.desktop.clock" }
+            SwitchOption { title: Translations.tr("settings.switch_desktop_player"); description: Translations.tr("settings.switch_desktop_player_desc"); prefField: "widgets.desktop.player" }
         }
     }
 
@@ -63,8 +63,8 @@ BaseMenu {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "horizontal_rule"; text: "Bar" }
-            SwitchOption { title: "Battery Charging Animation"; description: "Show an animation when charging"; prefField: "widgets.animatedBattery" }
+            SectionTitle { icon: "horizontal_rule"; text: Translations.tr("settings.section_bar") }
+            SwitchOption { title: Translations.tr("settings.switch_battery_animation"); description: Translations.tr("settings.switch_battery_animation_desc"); prefField: "widgets.animatedBattery" }
         }
     }
 
@@ -73,14 +73,14 @@ BaseMenu {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "code"; text: "GitHub Widget" }
-            TextFieldOption { title: "GitHub Username"; description: "Your GitHub username for the contribution calendar"; prefField: "misc.githubUsername"; placeholder: "octocat" }
+            SectionTitle { icon: "code"; text: Translations.tr("settings.section_github_widget") }
+            TextFieldOption { title: Translations.tr("settings.field_github_username"); description: Translations.tr("settings.field_github_username_desc"); prefField: "misc.githubUsername"; placeholder: "octocat" }
 
             Item {
                 visible: Preferences.misc.githubUsername !== ""
                 Layout.fillWidth: true
                 Layout.preferredHeight: 20
-                StyledText { anchors.centerIn: parent; text: "Preview"; font.pixelSize: 13; font.family: "Outfit SemiBold"; color: Colors.opacify(Appearance.colors.m3on_surface, 0.6) }
+                StyledText { anchors.centerIn: parent; text: Translations.tr("settings.preview"); font.pixelSize: 13; font.family: "Outfit SemiBold"; color: Colors.opacify(Appearance.colors.m3on_surface, 0.6) }
             }
 
             GithubContribCalendar { visible: Preferences.misc.githubUsername !== ""; Layout.alignment: Qt.AlignHCenter }
@@ -92,16 +92,16 @@ BaseMenu {
             width: parent.width
             spacing: 16
 
-            SectionTitle { icon: "tune"; text: "Misc" }
+            SectionTitle { icon: "tune"; text: Translations.tr("settings.section_misc") }
             SwitchOption {
-                title: "Show Stats Overlay"
-                description: "Shows general information about the system (FPS, CPU Usage, and Memory Usage)"
+                title: Translations.tr("settings.switch_stats_overlay")
+                description: Translations.tr("settings.switch_stats_overlay_desc")
                 prefField: "misc.showStatsOverlay"
             }
 
             SwitchOption {
-                title: "Activate Linux Overlay"
-                description: "Displays a parody \"Activate Linux\" watermark, similar to the Windows activation message."
+                title: Translations.tr("settings.switch_activate_linux")
+                description: Translations.tr("settings.switch_activate_linux_desc")
                 prefField: "misc.activateLinuxOverlay"
             }
 

@@ -58,9 +58,14 @@ PanelWindow {
         }
 
         if (!wasVideo) {
-            oldImage.source = currentImage.source;
-            oldImage.opacity = 1;
-            oldImageFadeOut.start();
+            if (Preferences.theme.switchAnimation) {
+                oldImage.source = currentImage.source;
+                oldImage.opacity = 1;
+                oldImageFadeOut.start();
+            } else {
+                oldImage.source = "";
+                oldImage.opacity = 0;
+            }
         }
 
         isVideo = newIsVideo;
@@ -70,7 +75,10 @@ PanelWindow {
             startMpvpaperForAllMonitors();
         } else {
             currentImage.source = currentWallpaper;
-            currentImage.opacity = 0;
+            currentImage.opacity = Preferences.theme.switchAnimation ? 0 : 1;
+            if (!Preferences.theme.switchAnimation) {
+                newImageFadeIn.stop();
+            }
         }
     }
 
@@ -78,6 +86,17 @@ PanelWindow {
         if (isVideo) {
             startMpvpaperForAllMonitors();
         }
+        // Reference the rotation service so it loads with the wallpaper window
+        WallpaperRotation.listDir();
+    }
+
+    function fillModeFromPref(mode) {
+        // 0 = PreserveAspectCrop, 1 = PreserveAspectFit, 2 = Stretch (IgnoreAspectRatio),
+        // 3 = Tile
+        if (mode === 1) return Image.PreserveAspectFit;
+        if (mode === 2) return Image.Stretch;
+        if (mode === 3) return Image.Tile;
+        return Image.PreserveAspectCrop;
     }
 
     function startMpvpaperForAllMonitors() {
@@ -202,7 +221,7 @@ PanelWindow {
             anchors.fill: parent
             sourceSize: Qt.size(wallpaper.width, wallpaper.height)
             source: ""
-            fillMode: Image.PreserveAspectCrop
+            fillMode: fillModeFromPref(Preferences.theme.fillMode)
             smooth: true
             cache: true
             visible: !isVideo
@@ -221,7 +240,7 @@ PanelWindow {
             anchors.fill: parent
             sourceSize: Qt.size(wallpaper.width, wallpaper.height)
             source: ""
-            fillMode: Image.PreserveAspectCrop
+            fillMode: fillModeFromPref(Preferences.theme.fillMode)
             smooth: true
             cache: true
             opacity: 0
@@ -237,7 +256,9 @@ PanelWindow {
 
                 onStopped: {
                     oldImage.source = "";
-                    newImageFadeIn.start();
+                    if (Preferences.theme.switchAnimation) {
+                        newImageFadeIn.start();
+                    }
                 }
             }
         }

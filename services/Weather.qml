@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.modules
 
 // weather infos are provided by Open-Mateo
 Singleton {
@@ -38,60 +39,60 @@ Singleton {
     function getCondition(code) {
         switch (code) {
         case 0:
-            return "Clear sky"
+            return Translations.tr("weather.clear_sky")
         case 1:
-            return "Mainly clear"
+            return Translations.tr("weather.mainly_clear")
         case 2:
-            return "Partly cloudy"
+            return Translations.tr("weather.partly_cloudy")
         case 3:
-            return "Overcast"
+            return Translations.tr("weather.overcast")
 
         case 45:
         case 48:
-            return "Foggy"
+            return Translations.tr("weather.foggy")
 
         case 51:
         case 53:
         case 55:
-            return "Drizzle"
+            return Translations.tr("weather.drizzle")
 
         case 56:
         case 57:
-            return "Freezing drizzle"
+            return Translations.tr("weather.freezing_drizzle")
 
         case 61:
         case 63:
         case 65:
-            return "Rain"
+            return Translations.tr("weather.rain")
 
         case 66:
         case 67:
-            return "Freezing rain"
+            return Translations.tr("weather.freezing_rain")
 
         case 71:
         case 73:
         case 75:
         case 77:
-            return "Snow"
+            return Translations.tr("weather.snow")
 
         case 80:
         case 81:
         case 82:
-            return "Rain showers"
+            return Translations.tr("weather.rain_showers")
 
         case 85:
         case 86:
-            return "Snow showers"
+            return Translations.tr("weather.snow_showers")
 
         case 95:
-            return "Thunderstorm"
+            return Translations.tr("weather.thunderstorm")
 
         case 96:
         case 99:
-            return "Thunderstorm with hail"
+            return Translations.tr("weather.thunderstorm_hail")
 
         default:
-            return "Unknown"
+            return Translations.tr("weather.condition_unknown")
         }
     }
 
@@ -153,31 +154,31 @@ Singleton {
         // figure out how to get this
         if (volcanicAsh) {
             safeOutside = false
-            safetyReason = "Volcanic ash"
+            safetyReason = Translations.tr("weather.safety_volcanic_ash")
             return
         }
 
         if (weatherCode >= 95) {
             safeOutside = false
-            safetyReason = "Thunderstorm"
+            safetyReason = Translations.tr("weather.safety_thunderstorm")
             return
         }
 
         if (weatherCode === 66 || weatherCode === 67) {
             safeOutside = false
-            safetyReason = "Freezing rain"
+            safetyReason = Translations.tr("weather.safety_freezing_rain")
             return
         }
 
         if (airQuality >= 150) {
             safeOutside = false
-            safetyReason = "Unhealthy air"
+            safetyReason = Translations.tr("weather.safety_unhealthy_air")
             return
         }
 
         if (apparentTemperature >= 40) {
             safeOutside = false
-            safetyReason = "Extreme heat"
+            safetyReason = Translations.tr("weather.safety_extreme_heat")
             return
         }
     }
@@ -216,7 +217,7 @@ Singleton {
                     if (!data.success) {
                         console.log(
                             "Weather location failed:",
-                            data.message || "Unknown error"
+                            data.message || Translations.tr("common.unknown")
                         )
                         return
                     }
@@ -229,7 +230,7 @@ Singleton {
                     } else if (data.city) {
                         weather.location = data.city
                     } else {
-                        weather.location = "Unknown"
+                        weather.location = Translations.tr("weather.location_unknown")
                     }
 
                     console.log(

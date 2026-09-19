@@ -6,25 +6,37 @@ import QtQuick.Layouts
 import qs.modules
 import qs.components
 import qs.preferences
+import qs.services as Serv
 
 Item {
     id: root
     readonly property Repeater items: itemsRep
     property bool verticalMode: false
-    anchors.horizontalCenter: verticalMode ? parent.horizontalCenter : undefined
-    visible: implicitWidth > 0
+    Layout.alignment: verticalMode ? Qt.AlignHCenter : Qt.AlignVCenter
+    visible: layout.children.length > 0
     clip: true
     implicitWidth: bg.width
     implicitHeight: bg.height
 
     StyledRectangle {
         id: bg
-        implicitWidth: layout.implicitWidth > 0 ? layout.implicitWidth + 10 : 0
-        implicitHeight: 25
+        implicitWidth: root.verticalMode
+            ? 25
+            : (layout.implicitWidth > 0 ? layout.implicitWidth + 10 : 0)
+        implicitHeight: root.verticalMode
+            ? (layout.implicitHeight > 0 ? layout.implicitHeight + 10 : 0)
+            : 25
         radius: 20
         color: Appearance.colors.m3surface_container
+        opacity: !Preferences.bar.keepOpaque && !Serv.Hyprland.currentWorkspace.hasTilingWindow() ? 0 : 1
 
         Behavior on implicitWidth {
+            NumberAnimation {
+                duration: Appearance.animation.fast
+                easing.type: Appearance.animation.easing
+            }
+        }
+        Behavior on implicitHeight {
             NumberAnimation {
                 duration: Appearance.animation.fast
                 easing.type: Appearance.animation.easing

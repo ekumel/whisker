@@ -236,31 +236,14 @@ Scope {
                     }
                 }
 
-                Image {
+                Item {
                     id: bg
                     anchors.fill: parent
-                    source: Appearance.wallpaper
-                    fillMode: Image.PreserveAspectCrop
-                    opacity: 0
-                    scale: 1
 
-                    layer.enabled: true
-                    layer.effect: MultiEffect {
-                        blurEnabled: true
-                        blur: 1.0
-                        blurMax: 64
-                        brightness: -0.1
-                    }
-
-                    onStatusChanged: {
-                        if (status === Image.Ready) fadeIn.start();
-                    }
-
-                    NumberAnimation on opacity {
-                        id: fadeIn
-                        to: 1
-                        duration: 1
-                        easing.type: Appearance.animation.easing
+                    StyledRectangle {
+                        anchors.fill: parent
+                        color: Appearance.colors.m3background
+                        opacity: 0.85
                     }
                 }
 
@@ -506,13 +489,6 @@ Scope {
                         running: win.visible && !win.closing && frozen.source != ""
 
                         NumberAnimation {
-                            target: bg
-                            property: "scale"
-                            to: bg.scale + 0.05
-                            duration: Appearance.animation.medium
-                            easing.type: Appearance.animation.easing
-                        }
-                        NumberAnimation {
                             target: container
                             property: "width"
                             to: win.width * 0.8
@@ -531,13 +507,6 @@ Scope {
                     ParallelAnimation {
                         id: closeAnim
 
-                        NumberAnimation {
-                            target: bg
-                            property: "scale"
-                            to: bg.scale - 0.05
-                            duration: Appearance.animation.medium
-                            easing.type: Appearance.animation.easing
-                        }
                         NumberAnimation {
                             target: container
                             property: "width"

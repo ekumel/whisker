@@ -8,27 +8,27 @@ import QtQuick.Layouts
 import Quickshell
 
 BaseMenu {
-    title: "Misc"
-    description: "Additional settings."
+    title: Translations.tr("settings.section_misc")
+    description: Translations.tr("settings.misc_description")
 
     BaseCard {
         SwitchOption {
-            title: "Visualizers"
-            description: "Whether to display visualizer on the shell.\nSetting this to `false` would disable every visualizer on the shell."
+            title: Translations.tr("settings.switch_enable_visualizers")
+            description: Translations.tr("settings.switch_enable_visualizers_desc")
             prefField: "misc.cavaEnabled"
         }
 
         SwitchOption {
-            title: "Render Overview Windows"
-            description: "Whether to render overview windows."
+            title: Translations.tr("settings.switch_render_overview")
+            description: Translations.tr("settings.switch_render_overview_desc")
             prefField: "misc.renderOverviewWindows"
         }
 
         Divider {}
 
         TextFieldOption {
-            title: "GitHub Username"
-            description: "Your GitHub username.\nUsed in the GitHub Contribution Calendar widget."
+            title: Translations.tr("settings.field_github_username")
+            description: Translations.tr("settings.field_github_username_desc")
             prefField: "misc.githubUsername"
         }
 
@@ -39,31 +39,35 @@ BaseMenu {
         Divider {}
 
         SwitchOption {
-            title: "Use Lyrics Translation"
-            description: "Show translated lyrics alongside the original lyrics.\n(Whisker uses Google Translate as its translation provider)"
+            title: Translations.tr("settings.switch_translate_lyrics")
+            description: Translations.tr("settings.switch_translate_lyrics_desc")
             prefField: "misc.translateLyrics"
         }
 
         TextFieldOption {
             visible: Preferences.misc.translateLyrics
-            title: "Lyrics Translation Language"
-            description: "Target language code for lyrics translation.\nExamples: en, id, ja, ko, etc."
+            title: Translations.tr("settings.field_translation_language")
+            description: Translations.tr("settings.field_translation_language_desc")
             prefField: "misc.lyricsLanguage"
         }
 
         Divider {}
 
         SwitchOption {
-            title: "Show Stats Overlay"
-            description: "Shows general information about the system (FPS, CPU Usage, and Memory Usage)"
+            title: Translations.tr("settings.switch_stats_overlay")
+            description: Translations.tr("settings.switch_stats_overlay_desc")
             prefField: "misc.showStatsOverlay"
         }
 
         SwitchOption {
-            title: "Activate Linux Overlay"
-            description: "Displays a parody \"Activate Linux\" watermark, similar to the Windows activation message."
+            title: Translations.tr("settings.switch_activate_linux")
+            description: Translations.tr("settings.switch_activate_linux_desc")
             prefField: "misc.activateLinuxOverlay"
         }
+
+        Divider {}
+
+        LanguageOption {}
     }
 
     component Divider: StyledRectangle {
@@ -137,6 +141,55 @@ BaseMenu {
             onTextChanged: {
                 Quickshell.execDetached({
                     command: ['whisker', 'prefs', 'set', main.prefField, text.toString()]
+                });
+            }
+        }
+    }
+
+    component LanguageOption: RowLayout {
+        id: langOption
+        property string title: Translations.tr("settings.language")
+        property string description: Translations.tr("settings.language_description")
+
+        ColumnLayout {
+            StyledText {
+                text: langOption.title
+                font.pixelSize: 16
+                color: Appearance.colors.m3on_background
+            }
+            StyledText {
+                text: langOption.description
+                font.pixelSize: 12
+                color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
+            }
+        }
+
+        Item {
+            Layout.fillWidth: true
+        }
+
+        StyledDropDown {
+            id: langDropDown
+            implicitWidth: 180
+
+            model: {
+                const codes = Translations.availableLanguages || [];
+                return codes.map(c => Translations.languageName(c));
+            }
+
+            currentIndex: {
+                const codes = Translations.availableLanguages || [];
+                const i = codes.indexOf(Translations.currentLanguage);
+                return i >= 0 ? i : 0;
+            }
+
+            onSelectedIndexChanged: (idx) => {
+                const codes = Translations.availableLanguages || [];
+                const code = codes[idx] || "";
+                if (code === "") return;
+                Translations.setLanguage(code);
+                Quickshell.execDetached({
+                    command: ['whisker', 'prefs', 'set', 'misc.language', code]
                 });
             }
         }

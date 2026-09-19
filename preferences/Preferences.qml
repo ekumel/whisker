@@ -11,6 +11,13 @@ Singleton {
     property bool ready: false
     property bool spawnedWelcome: false
 
+    // Set by `welcome.qml` (and any other "owned" welcome config) so its
+    // own Preferences instance knows it shouldn't recursively spawn another
+    // `whisker welcome` from `onReloaded`. Without this flag the first-run
+    // welcome would spawn welcome → spawn welcome → … flooding the screen
+    // with nested setup windows right after login.
+    property bool suppressWelcomeSpawn: false
+
     property QtObject bar: QtObject {
         property bool floating: false
         property string position: "top"
@@ -27,6 +34,19 @@ Singleton {
         property bool useWallpaper: true
         property string wallpaper: ""
         property real contrast: 0.0
+        property int videoFrame: 0
+        property bool useColorCache: true
+        property bool runUserMatugenTemplate: false
+        property string wallpaperDirectory: ""
+        // 0 = PreserveAspectCrop (default), 1 = PreserveAspectFit, 2 = Stretch, 3 = Tile
+        property int fillMode: 0
+        property bool switchAnimation: true
+        property bool rotationEnabled: false
+        property int rotationIntervalMinutes: 30
+        // 0 = sequential, 1 = random
+        property int rotationMode: 0
+        // -1 = unset (will pick first wallpaper deterministically)
+        property int rotationLastIndex: -1
     }
 
     property QtObject misc: QtObject {
@@ -41,6 +61,8 @@ Singleton {
         property bool activateLinuxOverlay: false
         property int clickerCount: 0
         property bool applyWallpaperToGreeter: false
+        // Empty string means "auto-detect from system locale".
+        property string language: ""
     }
 
     property QtObject widgets: QtObject {
@@ -55,10 +77,15 @@ Singleton {
     }
 
     onReloaded: {
-        if (!root.misc.finishedSetup && !root.spawnedWelcome) {
-            root.spawnedWelcome = true;
-            Quickshell.execDetached({ command: ["whisker", "welcome"] });
-        }
+        // Don't re-spawn when:
+        //  - this Preferences instance is the welcome config itself (it set
+        //    `suppressWelcomeSpawn` on startup), or
+        //  - we've already spawned a welcome in this process, or
+        //  - the user has finished setup.
+        if (root.suppressWelcomeSpawn || root.spawnedWelcome || root.misc.finishedSetup)
+            return;
+        root.spawnedWelcome = true;
+        Quickshell.execDetached({ command: ["whisker", "welcome"] });
     }
 
     Component.onCompleted: {

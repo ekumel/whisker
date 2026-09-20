@@ -47,10 +47,10 @@ Scope {
             property real borderWidth: 10
             property int selectedIndex: 0
             property bool sidebarCollapsed: false
-            width: 1280
-            height: 720
+            width: 1500
+            height: 800
             visible: true
-            title: "Whisker Settings"
+            title: Translations.tr("settings.window_title")
             color: Appearance.colors.m3background
             onClosing: Globals.visible_settingsMenu = false
 
@@ -118,7 +118,7 @@ Scope {
                     RowLayout {
                         anchors.centerIn: parent
                         StyledText {
-                            text: root.title.replace("Whisker ", "")
+                            text: Translations.tr("settings.window_short_title")
                             font.family: "Outfit SemiBold"
                             font.pixelSize: 20
                         }
@@ -227,7 +227,7 @@ Scope {
                                     }
                                 }
                             }
-                            MouseArea { id: mouseArea; anchors.fill: parent; hoverEnabled: true; onClicked: userCard.opened = !userCard.opened }
+                            MouseArea { id: mouseArea; Layout.fillWidth: true; Layout.fillHeight: true; hoverEnabled: true; onClicked: userCard.opened = !userCard.opened }
                         }
 
                         ListView {

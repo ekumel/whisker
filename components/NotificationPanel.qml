@@ -68,15 +68,14 @@ Item {
             verticalPadding: 0
 
             ColumnLayout {
-                anchors.left: parent.left
-                anchors.right: parent.right
+                Layout.fillWidth: true
 
                 StyledText {
                     visible: NotifServer.data.values.length === 0
                     text: "You're all caught up!"
                     font.pixelSize: 14
                     color: Appearance.colors.m3secondary
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    Layout.alignment: Qt.AlignHCenter
                 }
 
                 ScrollView {

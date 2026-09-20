@@ -8,7 +8,7 @@ import qs.components
 RowLayout {
     id: root
     spacing: 5
-    anchors.margins: 20
+    Layout.margins: 20
 
     property bool showText: true
     property string current_mode: "Balanced"

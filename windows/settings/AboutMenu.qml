@@ -84,7 +84,7 @@ Item {
                 }
 
                 StyledText {
-                    text: "A simple shell focusing on usability and customization (and cats)."
+                    text: Translations.tr("settings.tagline")
                     font.pixelSize: 14
                     wrapMode: Text.Wrap
                     color: Appearance.colors.m3on_background
@@ -98,14 +98,14 @@ Item {
                 spacing: 10
 
                 StyledButton {
-                    text: "View on GitHub"
+                    text: Translations.tr("settings.view_on_github")
                     icon: 'code'
                     onClicked: Qt.openUrlExternally("https://github.com/corecathx/whisker")
                     topRightRadius: 5
                     bottomRightRadius: 5
                 }
                 StyledButton {
-                    text: "Report Issue"
+                    text: Translations.tr("settings.report_issue")
                     icon: "bug_report"
                     secondary: true
                     onClicked: Qt.openUrlExternally("https://github.com/corecathx/whisker/issues")
@@ -134,7 +134,7 @@ Item {
         }
     }
     StyledText {
-        text: "Cat sounds from Minecraft"
+        text: Translations.tr("settings.cat_sounds_credit")
         font.pixelSize: 12
         color: Colors.opacify(Appearance.colors.m3on_background, 0.5)
         anchors.bottom: parent.bottom;
@@ -142,7 +142,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
     }
     StyledText {
-        text: "Built on top of <a href='https://quickshell.org'>Quickshell</a>"
+        text: Translations.tr("settings.built_on_quickshell")
         font.pixelSize: 12
         color: Colors.opacify(Appearance.colors.m3on_background, 0.5)
         textFormat: Text.RichText

@@ -57,7 +57,8 @@ BaseCard {
     }
 
     Column {
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
         spacing: 4
 
         RowLayout {

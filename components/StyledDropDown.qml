@@ -10,13 +10,10 @@ Item {
 
     property bool compact: false
     implicitWidth: {
-        if (!compact)
-            return 200
-
-        if (dropdown.popup.visible)
-            return popupMaxWidth + horizontalPadding
-        else
-            return closedWidth + horizontalPadding
+        var base = closedWidth + horizontalPadding
+        if (compact && dropdown.popup.visible)
+            return Math.max(base, popupMaxWidth + horizontalPadding)
+        return base
     }
     height: 56
 
@@ -27,8 +24,21 @@ Item {
         }
     }
     property int horizontalPadding: 24 + dropdownIcon.implicitWidth
-    property int closedWidth: labelText.width + dropdownIcon.implicitWidth
-    property int popupMaxWidth: calculatePopupMaxWidth() + 12 + dropdownIcon.implicitWidth
+    property int closedWidth: labelText.implicitWidth + dropdownIcon.implicitWidth
+    property int popupMaxWidth: _popupMaxWidth + horizontalPadding
+    property int _popupMaxWidth: 0
+
+    function recalcPopupMaxWidth() {
+        var max = 0
+        for (let i = 0; i < model.length; i++) {
+            metrics.text = model[i]
+            max = Math.max(max, metrics.width)
+        }
+        _popupMaxWidth = max + 12
+    }
+
+    onModelChanged: recalcPopupMaxWidth()
+    Component.onCompleted: recalcPopupMaxWidth()
 
     property alias radius: container.radius
     property string label: "Select option"
@@ -39,15 +49,6 @@ Item {
     property string tooltipText: ""
 
     signal selectedIndexChanged(int index)
-
-    function calculatePopupMaxWidth() {
-        var max = 0
-        for (let i = 0; i < model.length; i++) {
-            metrics.text = model[i]
-            max = Math.max(max, metrics.width)
-        }
-        return max
-    }
 
     TextMetrics {
         id: metrics

@@ -26,18 +26,6 @@ BaseMenu {
 
         Divider {}
 
-        TextFieldOption {
-            title: Translations.tr("settings.field_github_username")
-            description: Translations.tr("settings.field_github_username_desc")
-            prefField: "misc.githubUsername"
-        }
-
-        GithubContribCalendar {
-            Layout.alignment: Qt.AlignHCenter
-        }
-
-        Divider {}
-
         SwitchOption {
             title: Translations.tr("settings.switch_translate_lyrics")
             description: Translations.tr("settings.switch_translate_lyrics_desc")
@@ -63,6 +51,14 @@ BaseMenu {
             title: Translations.tr("settings.switch_activate_linux")
             description: Translations.tr("settings.switch_activate_linux_desc")
             prefField: "misc.activateLinuxOverlay"
+        }
+
+        Divider {}
+
+        SwitchOption {
+            title: Translations.tr("settings.switch_enable_polkit_agent")
+            description: Translations.tr("settings.switch_enable_polkit_agent_desc")
+            prefField: "misc.enablePolkitAgent"
         }
 
         Divider {}

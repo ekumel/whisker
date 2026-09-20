@@ -72,6 +72,8 @@ Singleton {
         property bool applyWallpaperToGreeter: false
         // Empty string means "auto-detect from system locale".
         property string language: ""
+        // Disable when running another polkit agent (e.g. hyprpolkitagent).
+        property bool enablePolkitAgent: false
     }
 
     property QtObject widgets: QtObject {

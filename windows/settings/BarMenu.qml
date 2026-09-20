@@ -10,22 +10,27 @@ import qs.components
 import qs.preferences
 
 BaseMenu {
-    title: "Bar"
-    description: "Customize the appearance and behavior of the bar."
+    title: Translations.tr("settings.bar")
+    description: Translations.tr("settings.bar_description")
 
     BaseCard {
 
         ColumnLayout {
             StyledText {
-                text: "Position"
+                text: Translations.tr("settings.bar_position")
                 font.pixelSize: 16
                 color: Appearance.colors.m3on_background
             }
 
             StyledDropDown {
                 Layout.fillWidth: true
-                label: "Bar Position"
-                model: ["Left", "Bottom", "Top", "Right"]
+                label: Translations.tr("settings.bar_position_label")
+                model: [
+                    Translations.tr("settings.bar_position_left"),
+                    Translations.tr("settings.bar_position_bottom"),
+                    Translations.tr("settings.bar_position_top"),
+                    Translations.tr("settings.bar_position_right")
+                ]
 
                 currentIndex: {
                     const pos = Preferences.bar.position
@@ -43,21 +48,21 @@ BaseMenu {
         }
 
         SwitchOption {
-            title: "Keep bar opaque"
-            description: "Keep the bar fully opaque at all times. If disabled, the bar becomes transparent when appropriate, such as on the desktop."
+            title: Translations.tr("settings.switch_keep_bar_opaque")
+            description: Translations.tr("settings.switch_keep_bar_opaque_desc")
             prefField: "bar.keepOpaque"
         }
 
         SwitchOption {
-            title: "Small bar"
-            description: "Use a compact bar. When enabled, you can adjust the padding between the bar and the edge of the screen."
+            title: Translations.tr("settings.switch_small_bar")
+            description: Translations.tr("settings.switch_small_bar_desc")
             prefField: "bar.small"
         }
 
         SliderOption {
             visible: Preferences.bar.small && Preferences.horizontalBar()
-            title: "Padding"
-            description: "Set the space between the bar and the edge of the screen."
+            title: Translations.tr("settings.slider_bar_padding")
+            description: Translations.tr("settings.slider_bar_padding_desc")
             prefField: "bar.padding"
             from: 0
             to: 500
@@ -65,20 +70,20 @@ BaseMenu {
         }
 
         SwitchOption {
-            title: "Auto hide bar"
-            description: "Automatically hide the bar. Move your cursor to the edge of the screen where the bar is located to reveal it."
+            title: Translations.tr("settings.switch_auto_hide_bar")
+            description: Translations.tr("settings.switch_auto_hide_bar_desc")
             prefField: "bar.autoHide"
         }
 
         SwitchOption {
-            title: "Floating mode"
-            description: "Display the bar detached from the edge of the screen instead of being attached to it."
+            title: Translations.tr("settings.switch_floating_mode")
+            description: Translations.tr("settings.switch_floating_mode_desc")
             prefField: "bar.floating"
         }
 
         SwitchOption {
-            title: "Render Overview Windows"
-            description: "Show live window previews in the workspace overview."
+            title: Translations.tr("settings.switch_render_overview")
+            description: Translations.tr("settings.switch_render_overview_desc")
             prefField: "misc.renderOverviewWindows"
         }
     }

@@ -9,21 +9,21 @@ import qs.modules
 import qs.services
 
 BaseMenu {
-    title: "User"
-    description: "Current user's profile."
+    title: Translations.tr("settings.user")
+    description: Translations.tr("settings.user_description")
 
     InfoCard {
         icon: "info"
         backgroundColor: Appearance.colors.m3tertiary
         contentColor: Appearance.colors.m3on_tertiary
-        title: "Root privileges required."
-        description: "Some changes need root access, so you'll get prompted if needed."
+        title: Translations.tr("settings.root_required")
+        description: Translations.tr("settings.root_required_desc")
     }
 
     BaseCard {
         SectionTitle {
             icon: "portrait"
-            text: "Profile Picture"
+            text: Translations.tr("settings.profile_picture")
         }
 
         Item {
@@ -50,18 +50,18 @@ BaseMenu {
                 id: setPfpProc
                 onExited: {
                     if (exitCode !== 0) {
-                        Quickshell.execDetached(["whisker", "notify", "Whisker", "Failed to set profile picture"]);
+                        Quickshell.execDetached(["whisker", "notify", "Whisker", Translations.tr("settings.failed_set_pfp")]);
                         return;
                     }
                     Appearance.refreshProfileImage();
-                    Quickshell.execDetached(["whisker", "notify", "Whisker", "Profile picture updated!"]);
+                    Quickshell.execDetached(["whisker", "notify", "Whisker", Translations.tr("settings.pfp_updated")]);
                 }
             }
         }
 
         StyledText {
             Layout.alignment: Qt.AlignHCenter
-            text: "Click the edit button to change"
+            text: Translations.tr("settings.click_edit_pfp")
             font.pixelSize: 12
             color: Appearance.colors.m3on_surface_variant
         }
@@ -74,7 +74,7 @@ BaseMenu {
 
             SectionTitle {
                 icon: "badge"
-                text: "Your Info"
+                text: Translations.tr("settings.your_info")
             }
 
             RowLayout {
@@ -82,7 +82,7 @@ BaseMenu {
                 spacing: 12
 
                 StyledText {
-                    text: "Username"
+                    text: Translations.tr("settings.username")
                     color: Appearance.colors.m3on_surface_variant
                     Layout.preferredWidth: 120
                 }
@@ -99,7 +99,7 @@ BaseMenu {
                 spacing: 12
 
                 StyledText {
-                    text: "Home"
+                    text: Translations.tr("settings.home")
                     color: Appearance.colors.m3on_surface_variant
                     Layout.preferredWidth: 120
                 }
@@ -116,13 +116,13 @@ BaseMenu {
                 spacing: 12
 
                 StyledText {
-                    text: "Shell"
+                    text: Translations.tr("settings.shell_label")
                     color: Appearance.colors.m3on_surface_variant
                     Layout.preferredWidth: 120
                 }
 
                 StyledText {
-                    text: Quickshell.env("SHELL") || "not set"
+                    text: Quickshell.env("SHELL") || Translations.tr("common.unknown")
                     color: Appearance.colors.m3on_surface
                     font.weight: Font.Medium
                 }
@@ -133,14 +133,14 @@ BaseMenu {
                 spacing: 12
 
                 StyledText {
-                    text: "Last Login"
+                    text: Translations.tr("settings.last_login")
                     color: Appearance.colors.m3on_surface_variant
                     Layout.preferredWidth: 120
                 }
 
                 StyledText {
                     id: lastLoginText
-                    text: "Loading..."
+                    text: Translations.tr("settings.loading_dots")
                     color: Appearance.colors.m3on_surface
                     font.weight: Font.Medium
                 }
@@ -151,14 +151,14 @@ BaseMenu {
                 spacing: 12
 
                 StyledText {
-                    text: "Account Created"
+                    text: Translations.tr("settings.account_created")
                     color: Appearance.colors.m3on_surface_variant
                     Layout.preferredWidth: 120
                 }
 
                 StyledText {
                     id: accountCreatedText
-                    text: "Loading..."
+                    text: Translations.tr("settings.loading_dots")
                     color: Appearance.colors.m3on_surface
                     font.weight: Font.Medium
                 }
@@ -172,7 +172,7 @@ BaseMenu {
             stdout: StdioCollector {
                 onStreamFinished: {
                     var result = text.trim()
-                    lastLoginText.text = result !== "" && !result.includes("Never") ? result : "Never logged in"
+                    lastLoginText.text = result !== "" && !result.includes("Never") ? result : Translations.tr("settings.never_logged_in")
                 }
             }
         }
@@ -184,7 +184,7 @@ BaseMenu {
             stdout: StdioCollector {
                 onStreamFinished: {
                     var timestamp = text.trim().split(' ')[0]
-                    accountCreatedText.text = timestamp || "Unknown"
+                    accountCreatedText.text = timestamp || Translations.tr("common.unknown")
                 }
             }
         }
@@ -193,8 +193,8 @@ BaseMenu {
 
     FilePicker {
         id: imagePicker
-        title: "Pick a profile picture"
-        filterLabel: "Images"
+        title: Translations.tr("settings.pick_pfp")
+        filterLabel: Translations.tr("settings.images")
         filters: ["png", "jpg", "jpeg", "gif", "svg", "webp"]
         onAccepted: path => {
             setPfpProc.command = ['whisker', 'users', Quickshell.env('USER'), 'icon', path];

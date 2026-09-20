@@ -7,13 +7,13 @@ import qs.modules
 import qs.services
 
 BaseMenu {
-    title: "Sound"
-    description: "Volume and audio devices"
+    title: Translations.tr("settings.sound")
+    description: Translations.tr("settings.sound_description")
 
     InfoCard {
         icon: "info"
-        title: "Preview"
-        description: "This panel is in active development"
+        title: Translations.tr("settings.preview")
+        description: Translations.tr("settings.sound_preview_info")
     }
 
     BaseCard {
@@ -43,7 +43,7 @@ BaseMenu {
                     Layout.fillWidth: true
 
                     StyledText {
-                        text: "Output"
+                        text: Translations.tr("settings.output")
                         font.pixelSize: 16
                         font.family: "Outfit Medium"
                         color: Appearance.colors.m3on_surface
@@ -72,7 +72,7 @@ BaseMenu {
                     Layout.fillWidth: true
 
                     StyledText {
-                        text: "Volume"
+                        text: Translations.tr("settings.volume")
                         font.pixelSize: 14
                         font.family: "Outfit Medium"
                         color: Appearance.colors.m3on_surface
@@ -116,7 +116,7 @@ BaseMenu {
                 spacing: 8
 
                 StyledText {
-                    text: "Device"
+                    text: Translations.tr("settings.device")
                     font.pixelSize: 14
                     font.family: "Outfit Medium"
                     color: Appearance.colors.m3on_surface
@@ -124,7 +124,7 @@ BaseMenu {
 
                 StyledDropDown {
                     Layout.fillWidth: true
-                    label: "Output device"
+                    label: Translations.tr("settings.output_device")
                     model: Audio.sinks.map(sink => sink.description)
                     currentIndex: {
                         for (let i = 0; i < Audio.sinks.length; i++) {
@@ -162,7 +162,7 @@ BaseMenu {
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: "Mute output"
+                        text: Translations.tr("settings.switch_mute_output")
                         font.pixelSize: 14
                         color: Appearance.colors.m3on_surface
                     }
@@ -206,7 +206,7 @@ BaseMenu {
                     spacing: 2
 
                     StyledText {
-                        text: "Input"
+                        text: Translations.tr("settings.input")
                         font.pixelSize: 16
                         font.family: "Outfit Medium"
                         color: Appearance.colors.m3on_surface
@@ -240,7 +240,7 @@ BaseMenu {
                     }
 
                     StyledText {
-                        text: "No input devices"
+                        text: Translations.tr("settings.no_input_devices")
                         font.pixelSize: 14
                         font.family: "Outfit Medium"
                         color: Appearance.colors.m3on_surface_variant
@@ -266,7 +266,7 @@ BaseMenu {
                     Layout.fillWidth: true
 
                     StyledText {
-                        text: "Volume"
+                        text: Translations.tr("settings.volume")
                         font.pixelSize: 14
                         font.family: "Outfit Medium"
                         color: Appearance.colors.m3on_surface
@@ -311,7 +311,7 @@ BaseMenu {
                 spacing: 8
 
                 StyledText {
-                    text: "Device"
+                    text: Translations.tr("settings.device")
                     font.pixelSize: 14
                     font.family: "Outfit Medium"
                     color: Appearance.colors.m3on_surface
@@ -319,7 +319,7 @@ BaseMenu {
 
                 StyledDropDown {
                     Layout.fillWidth: true
-                    label: "Input device"
+                    label: Translations.tr("settings.input_device")
                     model: Audio.sources.map(source => source.description)
                     currentIndex: {
                         for (let i = 0; i < Audio.sources.length; i++) {
@@ -351,22 +351,23 @@ BaseMenu {
                     spacing: 12
 
                     MaterialIcon {
-                        icon: Audio.defaultSource.audio.muted ? "mic_off" : "mic"
-                        color: Audio.defaultSource.audio.muted ? Appearance.colors.m3error : Appearance.colors.m3on_surface_variant
+                        icon: Audio.defaultSource && Audio.defaultSource.audio && Audio.defaultSource.audio.muted ? "mic_off" : "mic"
+                        color: Audio.defaultSource && Audio.defaultSource.audio && Audio.defaultSource.audio.muted ? Appearance.colors.m3error : Appearance.colors.m3on_surface_variant
                         font.pixelSize: 24
                     }
 
                     StyledText {
                         Layout.fillWidth: true
-                        text: "Mute input"
+                        text: Translations.tr("settings.switch_mute_input")
                         font.pixelSize: 14
                         color: Appearance.colors.m3on_surface
                     }
 
                     StyledSwitch {
-                        checked: Audio.defaultSource.audio.muted
+                        checked: Audio.defaultSource && Audio.defaultSource.audio && Audio.defaultSource.audio.muted
                         onToggled: {
-                            Audio.defaultSource.audio.muted = !Audio.defaultSource.audio.muted;
+                            if (Audio.defaultSource && Audio.defaultSource.audio)
+                                Audio.defaultSource.audio.muted = !Audio.defaultSource.audio.muted;
                         }
                     }
                 }

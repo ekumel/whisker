@@ -27,9 +27,9 @@ Item {
         }
     }
     property var messages: [
-        "Uhh... this is awkward",
-        "Oh, this isn't right.",
-        "Menu doesn't exist"
+        Translations.tr("settings.fallback_title_1"),
+        Translations.tr("settings.fallback_title_2"),
+        Translations.tr("settings.fallback_title_3")
     ]
     property string randomMessage: messages[Math.floor(Math.random() * messages.length)]
 
@@ -53,7 +53,7 @@ Item {
         }
 
         StyledText {
-            text: "This menu hasn't been implemented yet"
+            text: Translations.tr("settings.fallback_subtitle")
             font.pixelSize: 14
             color: Colors.opacify(Appearance.colors.m3on_surface, 0.4)
             Layout.alignment: Qt.AlignHCenter

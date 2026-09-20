@@ -14,8 +14,8 @@ import qs.services
 BaseMenu {
     id: root
     required property var screen
-    title: "Wallpaper"
-    description: "Choose and set wallpapers for your desktop."
+    title: Translations.tr("settings.wallpaper")
+    description: Translations.tr("settings.wallpaper_description")
 
     BaseRowCard {
         cardMargin: 0
@@ -24,12 +24,13 @@ BaseMenu {
         property var wallpapers: []
         property var filteredWallpapers: []
         property int currentPage: 0
-        readonly property int gridColumns: Math.max(1, Math.floor((wpFlick.width - 20) / 150))
+        readonly property int gridColumns: 5
         // Two rows per page keeps the number of live video thumbnails low
         // enough that paging stays smooth.
         readonly property int pageSize: gridColumns * 2
         readonly property int totalPages: Math.max(1, Math.ceil(filteredWallpapers.length / pageSize))
         readonly property var pagedWallpapers: filteredWallpapers.slice(currentPage * pageSize, (currentPage + 1) * pageSize)
+        readonly property int itemWidth: Math.floor((wpFlick.width - 20 - (gridColumns - 1) * 10) / gridColumns)
 
         onWallpapersChanged: updateFiltered()
         onFilteredWallpapersChanged: currentPage = 0
@@ -42,7 +43,8 @@ BaseMenu {
         }
 
         ColumnLayout {
-            anchors.fill: parent
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             spacing: 10
 
             RowLayout {
@@ -55,7 +57,7 @@ BaseMenu {
                     id: searchInput
                     Layout.fillWidth: true
                     icon: "search"
-                    placeholder: "Search wallpapers..."
+                    placeholder: Translations.tr("settings.search_wallpapers")
                     fieldPadding: 12
                     iconSize: 20
                     font.pixelSize: 14
@@ -117,7 +119,7 @@ BaseMenu {
                         model: wpSelectorCard.pagedWallpapers
 
                         delegate: Item {
-                            width: 140
+                            width: wpSelectorCard.itemWidth
                             height: width * root.screen.height / root.screen.width + 35
                             property bool hovered: mouseArea.containsMouse
                             property bool selected: Preferences.theme.wallpaper === modelData
@@ -140,6 +142,7 @@ BaseMenu {
                                     ]
 
                                     wpSetProc.running = true
+                                    WallpaperRotation.pushToGreeter(modelData)
                                 }
                             }
 
@@ -249,8 +252,9 @@ BaseMenu {
 
                 StyledText {
                     Layout.fillWidth: true
-                    text: wpSelectorCard.filteredWallpapers.length + " wallpaper" +
-                          (wpSelectorCard.filteredWallpapers.length !== 1 ? "s" : "") + " found"
+                    text: wpSelectorCard.filteredWallpapers.length === 1
+                        ? Translations.tr("settings.wallpapers_found_one", wpSelectorCard.filteredWallpapers.length)
+                        : Translations.tr("settings.wallpapers_found_many", wpSelectorCard.filteredWallpapers.length)
                     color: Appearance.colors.m3on_surface_variant
                     font.pixelSize: 12
                     horizontalAlignment: Text.AlignLeft
@@ -280,17 +284,18 @@ BaseMenu {
                     onClicked: wpSelectorCard.currentPage = Math.min(wpSelectorCard.totalPages - 1, wpSelectorCard.currentPage + 1)
                 }
             }
-        }
 
-        StyledRectangle {
-            anchors.fill: parent
-            color: Colors.opacify(Appearance.colors.m3surface, 0.4)
-            visible: wpSetProc.running
-            z: 999
+            StyledRectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: Colors.opacify(Appearance.colors.m3surface, 0.4)
+                visible: wpSetProc.running
+                z: 999
 
-            LoadingIcon {
-                anchors.centerIn: parent
-                visible: true
+                LoadingIcon {
+                    anchors.centerIn: parent
+                    visible: true
+                }
             }
         }
 
@@ -341,7 +346,7 @@ BaseMenu {
                             "whisker",
                             "notify",
                             "Whisker",
-                            "Wallpaper changed!"
+                            Translations.tr("settings.wallpaper_changed")
                         ]
                     })
                 }
@@ -351,39 +356,42 @@ BaseMenu {
 
     BaseRowCard {
         SwitchOption {
-            title: "Switch animation"
-            description: "Fade between wallpapers when switching."
+            title: Translations.tr("settings.switch_animation")
+            description: Translations.tr("settings.switch_animation_desc")
             prefField: "theme.switchAnimation"
         }
     }
 
     BaseRowCard {
         SwitchOption {
-            title: "Timed rotation"
-            description: "Automatically cycle through wallpapers at a fixed interval."
+            title: Translations.tr("settings.switch_timed_rotation")
+            description: Translations.tr("settings.switch_timed_rotation_desc")
             prefField: "theme.rotationEnabled"
         }
         SliderOption {
             visible: Preferences.theme.rotationEnabled
-            title: "Rotation interval"
-            description: "How often to switch the wallpaper (in minutes)."
+            title: Translations.tr("settings.slider_rotation_interval")
+            description: Translations.tr("settings.slider_rotation_interval_desc")
             prefField: "theme.rotationIntervalMinutes"
             from: 1
             to: 720
             stepSize: 1
         }
+    }
+
+    BaseRowCard {
         RowLayout {
             Layout.fillWidth: true
             spacing: 12
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Rotation mode"
+                    text: Translations.tr("settings.rotation_mode")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Sequential walks the list in order; random picks any wallpaper."
+                    text: Translations.tr("settings.rotation_mode_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -393,7 +401,10 @@ BaseMenu {
             Item { Layout.fillWidth: true }
             StyledDropDown {
                 implicitWidth: 160
-                model: ["Sequential", "Random"]
+                model: [
+                    Translations.tr("settings.rotation_mode_sequential"),
+                    Translations.tr("settings.rotation_mode_random")
+                ]
                 currentIndex: Preferences.theme.rotationMode
                 onSelectedIndexChanged: (idx) => {
                     if (idx < 0) return;
@@ -412,12 +423,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Fill mode"
+                    text: Translations.tr("settings.fill_mode")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "How the wallpaper is rendered on the desktop."
+                    text: Translations.tr("settings.fill_mode_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -427,7 +438,12 @@ BaseMenu {
             Item { Layout.fillWidth: true }
             StyledDropDown {
                 implicitWidth: 180
-                model: ["Crop (fill)", "Fit (letterbox)", "Stretch", "Tile"]
+                model: [
+                    Translations.tr("settings.fill_mode_crop"),
+                    Translations.tr("settings.fill_mode_fit"),
+                    Translations.tr("settings.fill_mode_stretch"),
+                    Translations.tr("settings.fill_mode_tile")
+                ]
                 currentIndex: Preferences.theme.fillMode
                 onSelectedIndexChanged: (idx) => {
                     if (idx < 0) return;
@@ -441,8 +457,8 @@ BaseMenu {
 
     BaseRowCard {
         TextFieldOption {
-            title: "Wallpaper directory"
-            description: "Folder scanned for wallpapers (image and video files)."
+            title: Translations.tr("settings.field_wallpaper_directory")
+            description: Translations.tr("settings.field_wallpaper_directory_desc")
             prefField: "theme.wallpaperDirectory"
             placeholder: "~/Pictures/wallpapers"
         }
@@ -451,7 +467,7 @@ BaseMenu {
             spacing: 12
             Item { Layout.fillWidth: true }
             StyledButton {
-                text: "Refresh list"
+                text: Translations.tr("settings.refresh_list")
                 icon: "refresh"
                 onClicked: WallpaperRotation.listDir()
             }
@@ -465,12 +481,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Apply to greeter"
+                    text: Translations.tr("settings.apply_to_greeter")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Requires root privileges every wallpaper change."
+                    text: Translations.tr("settings.apply_to_greeter_desc", "")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -489,8 +505,8 @@ BaseMenu {
 
     BaseCard {
         SliderOption {
-            title: "Video frame rate"
-            description: "Cap the frame rate of video wallpapers. Set to 0 for unlimited."
+            title: Translations.tr("settings.slider_video_fps")
+            description: Translations.tr("settings.slider_video_fps_desc")
             prefField: "theme.videoWallpaper.fps"
             from: 0
             to: 144
@@ -502,12 +518,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Hardware decoding"
+                    text: Translations.tr("settings.switch_hardware_decoding")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Use GPU-accelerated decoding for video wallpapers (recommended)."
+                    text: Translations.tr("settings.switch_hardware_decoding_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -526,7 +542,7 @@ BaseMenu {
 
     BaseCard {
         StyledText {
-            text: "Pause video wallpaper when..."
+            text: Translations.tr("settings.pause_video_when")
             font.pixelSize: 14
             font.bold: true
             color: Appearance.colors.m3on_surface
@@ -540,12 +556,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Workspace has any window"
+                    text: Translations.tr("settings.switch_pause_on_any_window")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Pause playback whenever the active workspace contains at least one window."
+                    text: Translations.tr("settings.switch_pause_on_any_window_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -566,12 +582,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Floating window present"
+                    text: Translations.tr("settings.switch_pause_on_floating")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Pause playback while a floating window is on the active workspace."
+                    text: Translations.tr("settings.switch_pause_on_floating_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -592,12 +608,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Tiled window present"
+                    text: Translations.tr("settings.switch_pause_on_tiled")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Pause playback while a tiled (non-floating) window is on the active workspace."
+                    text: Translations.tr("settings.switch_pause_on_tiled_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap
@@ -618,12 +634,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Fullscreen window present"
+                    text: Translations.tr("settings.switch_pause_on_fullscreen")
                     font.pixelSize: 15
                     color: Appearance.colors.m3on_surface
                 }
                 StyledText {
-                    text: "Pause playback while a fullscreen window is on the active workspace."
+                    text: Translations.tr("settings.switch_pause_on_fullscreen_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_surface, 0.6)
                     wrapMode: Text.Wrap

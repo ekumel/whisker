@@ -110,7 +110,8 @@ Singleton {
             "matugen", "image", inputPath,
             "-m", Preferences.theme.dark ? "dark" : "light",
             "-t", "scheme-" + Preferences.theme.scheme,
-            "--contrast", Number(Preferences.theme.contrast).toFixed(2)
+            "--contrast", Number(Preferences.theme.contrast).toFixed(2),
+            "--source-color-index", "0"
         ];
         Log.info("services/Theme.qml", "Running matugen: " + cmd.join(" "));
         matugenProc.command = cmd;
@@ -190,7 +191,8 @@ Singleton {
                             "matugen", "image", input,
                             "-m", Preferences.theme.dark ? "dark" : "light",
                             "-t", tpl,
-                            "--contrast", Number(Preferences.theme.contrast).toFixed(2)
+                            "--contrast", Number(Preferences.theme.contrast).toFixed(2),
+                            "--source-color-index", "0"
                         ],
                         running: true
                     });

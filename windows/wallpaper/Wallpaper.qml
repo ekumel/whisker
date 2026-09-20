@@ -92,7 +92,7 @@ PanelWindow {
             pauseSyncTimer.restart();
         }
         // Reference the rotation service so it loads with the wallpaper window
-        WallpaperRotation.listDir();
+        WhiskerServ.WallpaperRotation.listDir();
     }
 
     Timer {
@@ -421,7 +421,7 @@ PanelWindow {
             visible: Preferences.widgets.desktop.clock
             StyledText {
                 Layout.alignment: Qt.AlignCenter
-                text: Qt.formatDateTime(Time.date, "HH")
+                text: Qt.formatDateTime(WhiskerServ.Time.date, "HH")
                 font.family: "Outfit Black"
                 color: Appearance.colors.m3primary
                 font.pixelSize: 96
@@ -435,7 +435,7 @@ PanelWindow {
             }
             StyledText {
                 Layout.alignment: Qt.AlignCenter
-                text: Qt.formatDateTime(Time.date, "mm")
+                text: Qt.formatDateTime(WhiskerServ.Time.date, "mm")
                 font.family: "Outfit Black"
                 color: Appearance.colors.m3secondary
                 font.pixelSize: 96
@@ -444,7 +444,7 @@ PanelWindow {
 
 
         StyledText {
-            text: Qt.formatDateTime(Time.date, "dddd, dd/MM")
+            text: Qt.formatDateTime(WhiskerServ.Time.date, "dddd, dd/MM")
             color: Appearance.colors.m3primary
             font.pixelSize: 32
             font.bold: true

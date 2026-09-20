@@ -9,8 +9,8 @@ import qs.services
 
 BaseMenu {
     id: root
-    title: "System"
-    description: "Detailed overview of your system"
+    title: Translations.tr("settings.system_info")
+    description: Translations.tr("settings.system_description")
 
     property string hostname: ""
     property string kernel: ""
@@ -269,7 +269,7 @@ BaseMenu {
         id: deProc
         command: ["sh", "-c", "echo $XDG_CURRENT_DESKTOP"]
         stdout: StdioCollector {
-            onStreamFinished: root.de = text.trim() || "None"
+            onStreamFinished: root.de = text.trim() || Translations.tr("common.none")
         }
     }
 
@@ -277,7 +277,7 @@ BaseMenu {
         id: wmProc
         command: ["sh", "-c", "echo $HYPRLAND_INSTANCE_SIGNATURE"]
         stdout: StdioCollector {
-            onStreamFinished: root.wm = text.trim() ? "Hyprland" : "Unknown"
+            onStreamFinished: root.wm = text.trim() ? Translations.tr("settings.wm_hyprland") : Translations.tr("common.unknown")
         }
     }
 
@@ -303,7 +303,7 @@ BaseMenu {
             }
 
             StyledText {
-                text: "System Details"
+                text: Translations.tr("settings.system_details")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -317,50 +317,50 @@ BaseMenu {
             Layout.fillWidth: true
 
             DetailItem {
-                label: "Hostname"
-                value: root.hostname || "Loading..."
+                label: Translations.tr("settings.hostname")
+                value: root.hostname || Translations.tr("settings.loading_dots")
                 icon: "computer"
             }
 
             DetailItem {
-                label: "Operating System"
-                value: root.os || "Loading..."
+                label: Translations.tr("settings.operating_system")
+                value: root.os || Translations.tr("settings.loading_dots")
                 icon: "dns"
             }
 
             DetailItem {
-                label: "Kernel"
-                value: root.kernel || "Loading..."
+                label: Translations.tr("settings.kernel")
+                value: root.kernel || Translations.tr("settings.loading_dots")
                 icon: "settings_system_daydream"
             }
 
             DetailItem {
-                label: "Architecture"
-                value: root.architecture || "Loading..."
+                label: Translations.tr("settings.architecture")
+                value: root.architecture || Translations.tr("settings.loading_dots")
                 icon: "architecture"
             }
 
             DetailItem {
-                label: "Uptime"
-                value: Utils.formatSeconds(System.uptime) || "Loading..."
+                label: Translations.tr("settings.uptime")
+                value: Utils.formatSeconds(System.uptime) || Translations.tr("settings.loading_dots")
                 icon: "schedule"
             }
 
             DetailItem {
-                label: "Shell"
-                value: root.shell || "Loading..."
+                label: Translations.tr("settings.shell_label")
+                value: root.shell || Translations.tr("settings.loading_dots")
                 icon: "terminal"
             }
 
             DetailItem {
-                label: "Window Manager"
-                value: root.wm || "Loading..."
+                label: Translations.tr("settings.window_manager")
+                value: root.wm || Translations.tr("settings.loading_dots")
                 icon: "window"
             }
 
             DetailItem {
-                label: "Processes"
-                value: root.totalProcesses > 0 ? root.totalProcesses.toString() : "Loading..."
+                label: Translations.tr("settings.processes")
+                value: root.totalProcesses > 0 ? root.totalProcesses.toString() : Translations.tr("settings.loading_dots")
                 icon: "memory"
             }
         }
@@ -378,7 +378,7 @@ BaseMenu {
             }
 
             StyledText {
-                text: "Hardware"
+                text: Translations.tr("settings.hardware")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -387,31 +387,33 @@ BaseMenu {
 
         HardwareItem {
             icon: "memory"
-            label: "Processor"
-            value: root.cpuModel || "Loading..."
-            detail: root.cpuCores > 0 ? (root.cpuCores + " cores • " + root.cpuFreq) : ""
+            label: Translations.tr("settings.processor")
+            value: root.cpuModel || Translations.tr("settings.loading_dots")
+            detail: root.cpuCores > 0 ? Translations.tr("settings.cores_freq", root.cpuCores, root.cpuFreq) : ""
             detail2: root.cpuTemp > 0 ? (root.cpuTemp.toFixed(1) + "°C") : ""
             warning: root.cpuTemp > 75
         }
 
         HardwareItem {
             icon: "videocam"
-            label: "Graphics"
-            value: root.gpuInfo || "Loading..."
-            detail: root.gpuDriver ? ("Driver: " + root.gpuDriver) : ""
+            label: Translations.tr("settings.graphics")
+            value: root.gpuInfo || Translations.tr("settings.loading_dots")
+            detail: root.gpuDriver ? Translations.tr("settings.driver_prefix", root.gpuDriver) : ""
         }
 
         HardwareItem {
             icon: "desktop_windows"
-            label: "Display Server"
-            value: root.displayServer || "Loading..."
-            detail: root.screenCount + " screen" + (root.screenCount > 1 ? "s" : "")
+            label: Translations.tr("settings.display_server")
+            value: root.displayServer || Translations.tr("settings.loading_dots")
+            detail: root.screenCount > 1
+                ? Translations.tr("settings.screen_count_many", root.screenCount)
+                : Translations.tr("settings.screen_count_one", root.screenCount)
         }
 
         HardwareItem {
             icon: "aspect_ratio"
-            label: "Primary Resolution"
-            value: root.resolution || "Loading..."
+            label: Translations.tr("settings.primary_resolution")
+            value: root.resolution || Translations.tr("settings.loading_dots")
         }
     }
 
@@ -427,7 +429,7 @@ BaseMenu {
             }
 
             StyledText {
-                text: "Performance"
+                text: Translations.tr("settings.performance")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -435,14 +437,14 @@ BaseMenu {
         }
 
         PerformanceItem {
-            label: "CPU Usage"
+            label: Translations.tr("settings.cpu_usage")
             value: root.cpuUsage + "%"
             progress: parseFloat(root.cpuUsage) / 100
             icon: "speed"
         }
 
         PerformanceItem {
-            label: "Memory"
+            label: Translations.tr("settings.memory")
             value: root.memUsed + " / " + root.memTotal
             detail: root.memUsage + "%"
             progress: parseFloat(root.memUsage) / 100
@@ -451,7 +453,7 @@ BaseMenu {
 
         PerformanceItem {
             visible: root.swapTotal !== "0" && root.swapTotal !== ""
-            label: "Swap"
+            label: Translations.tr("settings.swap")
             value: root.swapUsed + " / " + root.swapTotal
             detail: root.swapUsage + "%"
             progress: parseFloat(root.swapUsage) / 100
@@ -459,7 +461,7 @@ BaseMenu {
         }
 
         PerformanceItem {
-            label: "Disk Usage (Root)"
+            label: Translations.tr("settings.disk_usage_root")
             value: root.diskUsed + " / " + root.diskTotal
             detail: root.diskUsage + "%"
             progress: parseFloat(root.diskUsage) / 100
@@ -571,18 +573,19 @@ BaseMenu {
     }
 
     component PerformanceItem: BaseRowCard {
+        id: perfItem
         required property string label
         required property string value
         property string detail: ""
         required property real progress
-        required property string icon
+        property string icon: "info"
 
         cardSpacing: 0
         verticalPadding: 10
         cardMargin: 0
 
         MaterialIcon {
-            icon: parent.icon
+            icon: perfItem.icon
             color: Appearance.colors.m3primary
             font.pixelSize: 20
         }

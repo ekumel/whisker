@@ -11,13 +11,13 @@ import qs.services
 BaseMenu {
     id: root
     property real lowHealthThreshold: 70
-    title: "Power"
-    description: "View battery status and power options."
+    title: Translations.tr("settings.power")
+    description: Translations.tr("settings.power_description")
     property string current_mode: "Balanced"
 
     BaseCard {
         StyledText {
-            text: "Batteries"
+            text: Translations.tr("settings.batteries")
             font.pixelSize: 20
             font.bold: true
             color: Appearance.colors.m3on_background
@@ -28,7 +28,7 @@ BaseMenu {
                 color: Appearance.colors.m3surface_container
                 RowLayout {
                     StyledText {
-                        text: "Battery " + (index + 1)
+                        text: Translations.tr("settings.battery_index", index + 1)
                         font.pixelSize: 16
                         font.bold: true
                         color: Appearance.colors.m3on_background
@@ -44,8 +44,8 @@ BaseMenu {
                     icon: "error"
                     backgroundColor: Appearance.colors.m3error
                     contentColor: Appearance.colors.m3on_error
-                    title: "Critical battery health"
-                    description: "Battery health at " + modelData.healthPercentage.toFixed(1) + "%, consider replacing."
+                    title: Translations.tr("settings.battery_health_critical")
+                    description: Translations.tr("settings.battery_health_critical_desc", modelData.healthPercentage.toFixed(1))
                 }
 
                 StyledProgressBar {
@@ -60,8 +60,8 @@ BaseMenu {
                     Item { Layout.fillWidth: true }
                     StyledText {
                         text: Power.onBattery
-                            ? Utils.formatSeconds(modelData.timeToEmpty) || "Calculating"
-                            : Utils.formatSeconds(modelData.timeToFull) || "Fully charged"
+                            ? Utils.formatSeconds(modelData.timeToEmpty) || Translations.tr("settings.calculating")
+                            : Utils.formatSeconds(modelData.timeToFull) || Translations.tr("settings.fully_charged")
                         font.pixelSize: 12
                         color: Appearance.colors.m3on_background
                     }
@@ -72,7 +72,7 @@ BaseMenu {
 
     BaseCard {
         StyledText {
-            text: "Power Profiles"
+            text: Translations.tr("settings.power_profiles")
             font.pixelSize: 20
             font.bold: true
             color: Appearance.colors.m3on_background

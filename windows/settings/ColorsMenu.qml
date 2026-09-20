@@ -11,15 +11,14 @@ import qs.preferences
 
 
 BaseMenu {
-    title: "Color Scheme"
-    description: "Adjust how Whisker looks like to your preference."
+    title: Translations.tr("settings.color_scheme")
+    description: Translations.tr("settings.color_scheme_description")
     BaseCard {
         ColorSchemePreview {}
         Flickable {
             id: schemeFlick
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: 150
+            Layout.fillWidth: true
+            Layout.preferredHeight: 150
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             flickableDirection: Flickable.HorizontalFlick
@@ -38,25 +37,25 @@ BaseMenu {
     }
 
     BaseCard {
-        SectionTitle { icon: "build"; text: "Configuration" }
+        SectionTitle { icon: "build"; text: Translations.tr("settings.configuration") }
 
         SwitchOption {
             id: smartSwitch
-            title: "Smart theme"
-            description: "Automatically choose light or dark colors from the wallpaper."
+            title: Translations.tr("settings.switch_smart_theme")
+            description: Translations.tr("settings.switch_smart_theme_desc")
             prefField: "theme.smart"
         }
 
         SwitchOption {
-            title: "Dark mode"
-            description: "Whether to use dark color schemes."
+            title: Translations.tr("settings.switch_dark_mode")
+            description: Translations.tr("settings.switch_dark_mode_desc")
             prefField: "theme.dark"
             visible: !smartSwitch.checked
         }
 
         SliderOption {
-            title: "Contrast"
-            description: "Set how contrast is the colors.\n(Colors need to be applied manually)"
+            title: Translations.tr("settings.slider_contrast")
+            description: Translations.tr("settings.slider_contrast_desc")
             prefField: "theme.contrast"
             from: -1
             to: 1
@@ -65,14 +64,14 @@ BaseMenu {
         }
 
         SwitchOption {
-            title: "Color cache"
-            description: "Cache generated color schemes in ~/.cache to avoid re-running matugen on the same wallpaper."
+            title: Translations.tr("settings.switch_color_cache")
+            description: Translations.tr("settings.switch_color_cache_desc")
             prefField: "theme.useColorCache"
         }
 
         SwitchOption {
-            title: "Run user matugen templates"
-            description: "After color regen, invoke every file in ~/.config/matugen/ as a matugen template."
+            title: Translations.tr("settings.switch_run_user_matugen")
+            description: Translations.tr("settings.switch_run_user_matugen_desc")
             prefField: "theme.runUserMatugenTemplate"
         }
     }

@@ -22,11 +22,23 @@ ShellRoot {
     property bool showUserInput: false
     property int selectedDE: 0
 
+    // Last successful login, persisted to ~/.config/whisker/greeter-state.json
+    // (which lives in /var/lib/whisker/greeter-home/.config/whisker/ while
+    // greetd is running). On startup we restore lastUsername / lastSessionIndex
+    // so the user doesn't have to re-pick them every time.
+    property string lastUsername: ""
+    property int lastSessionIndex: 0
+    property string lastSessionCommand: ""
+    property bool rememberLoaded: false
+
     // greetd session runs under /var/lib/whisker/greeter-home (no user
     // preferences.json), so Preferences.misc.finishedSetup defaults to false
     // and `onReloaded` would otherwise spawn the welcome wizard. Suppress it
     // here, matching welcome.qml's own guard.
-    Component.onCompleted: Preferences.suppressWelcomeSpawn = true
+    Component.onCompleted: {
+        Preferences.suppressWelcomeSpawn = true;
+        stateFile.reload();
+    }
 
     Process {
         id: getUsersProcess
@@ -65,8 +77,78 @@ ShellRoot {
 
                 root.detectedDEs = names
                 root.detectedDECommands = commands
+                root.maybeRestoreLastLogin();
             }
         }
+    }
+
+    FileView {
+        id: stateFile
+        path: Quickshell.env("HOME") + "/.config/whisker/greeter-state.json"
+        watchChanges: true
+        onLoaded: {
+            try {
+                const parsed = JSON.parse(text());
+                if (typeof parsed.username === "string")
+                    root.lastUsername = parsed.username;
+                if (typeof parsed.sessionIndex === "number")
+                    root.lastSessionIndex = parsed.sessionIndex;
+                if (typeof parsed.sessionCommand === "string")
+                    root.lastSessionCommand = parsed.sessionCommand;
+            } catch (e) {
+                // Corrupt or empty state file — just start fresh.
+            }
+            root.rememberLoaded = true;
+            root.maybeRestoreLastLogin();
+        }
+        onLoadFailed: {
+            // No prior state — that's fine.
+            root.rememberLoaded = true;
+            root.maybeRestoreLastLogin();
+        }
+    }
+
+    function persistState() {
+        const payload = JSON.stringify({
+            username: root.curUsername,
+            sessionIndex: root.selectedDE,
+            sessionCommand: root.detectedDECommands[root.selectedDE] || ""
+        });
+        Quickshell.execDetached({
+            command: [
+                "sh", "-c",
+                "mkdir -p \"$HOME/.config/whisker\" && " +
+                "printf '%s' '" + payload.replace(/'/g, "'\\''") + "' " +
+                "> \"$HOME/.config/whisker/greeter-state.json\""
+            ]
+        });
+    }
+
+    function maybeRestoreLastLogin() {
+        if (!rememberLoaded)
+            return;
+        if (root.detectedUsers.length === 0 || root.detectedDEs.length === 0)
+            return;
+        if (root.curState !== "userSelection")
+            return;
+        if (root.lastUsername === "")
+            return;
+        if (root.detectedUsers.indexOf(root.lastUsername) === -1)
+            return;
+
+        // Map remembered sessionCommand (stable across reboots / DE list
+        // changes) back to an index. Fall back to lastSessionIndex, then 0.
+        var idx = -1;
+        if (root.lastSessionCommand !== "") {
+            idx = root.detectedDECommands.indexOf(root.lastSessionCommand);
+        }
+        if (idx === -1)
+            idx = Math.min(root.lastSessionIndex, root.detectedDEs.length - 1);
+        if (idx < 0)
+            idx = 0;
+
+        root.selectedDE = idx;
+        root.prepareLogin(root.lastUsername);
     }
 
     PanelWindow {
@@ -92,10 +174,24 @@ ShellRoot {
             id: bgImage
             anchors.fill: parent
             sourceSize: Qt.size(bgWindow.width, bgWindow.height)
-            source: root.curUsername !== "" ? "file:///var/lib/whisker/wallpapers/" + root.curUsername : ""
+            source: root.curUsername !== ""
+                ? "file:///var/lib/whisker/wallpapers/" + root.curUsername
+                : ""
             fillMode: Image.PreserveAspectCrop
             smooth: true
             cache: true
+            asynchronous: true
+
+            onStatusChanged: function (status) {
+                if (status === Image.Error) {
+                    Log.warn("greetd.qml",
+                        "wallpaper load failed for user '" + root.curUsername
+                        + "' (source=" + source + ")");
+                } else if (status === Image.Ready) {
+                    Log.info("greetd.qml",
+                        "wallpaper loaded for user '" + root.curUsername + "'");
+                }
+            }
             opacity: root.curState === "enterPassword" ? 1 : 0
             scale: root.curState === "enterPassword" ? 1.02 : 1
             layer.enabled: true
@@ -454,6 +550,7 @@ ShellRoot {
 
         function onReadyToLaunch() {
             statusText.text = "Launching..."
+            root.persistState();
 
             var command = ["bash"]
             if (root.selectedDE < root.detectedDECommands.length)

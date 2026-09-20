@@ -60,9 +60,9 @@ BaseCard {
             StyledText {
                 text: {
                     if (isActive)
-                        return "Connected";
+                        return Translations.tr("settings.connected");
 
-                    return QsNet.WifiSecurityType.toString(connection.security) + (connection.known ? " (Known)" : "");
+                    return QsNet.WifiSecurityType.toString(connection.security) + (connection.known ? " " + Translations.tr("settings.known_suffix") : "");
                 }
                 font.pixelSize: 12
                 color: isActive ? Appearance.colors.m3primary : Colors.opacify(Appearance.colors.m3on_background, 0.6)
@@ -94,14 +94,13 @@ BaseCard {
     RowLayout {
         visible: showPasswordField
         property bool showPassword: false
-        anchors.left: parent.left
-        anchors.right: parent.right
+        Layout.fillWidth: true
         spacing: 10
         StyledTextField {
             padding: 10
             icon: "password"
             Layout.fillWidth: true
-            placeholder: "Enter password"
+            placeholder: Translations.tr("settings.enter_password")
             echoMode: parent.showPassword ? TextInput.Normal : TextInput.Password
             onTextChanged: root.password = text
             onAccepted: {

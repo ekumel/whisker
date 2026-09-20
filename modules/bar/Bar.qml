@@ -22,7 +22,11 @@ Scope {
             id: window
             property var modelData
             screen: modelData
-            property bool shouldShow: !Preferences.bar.autoHide && !Hyprland.focusedWorkspace.hasFullscreen
+            property bool shouldShow: {
+                if (Preferences.bar.autoHide) return false;
+                const ws = Hyprland.focusedWorkspace;
+                return !(ws && ws.hasFullscreen);
+            }
             property bool isAnimating: false
 
             exclusionMode: {

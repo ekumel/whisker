@@ -7,8 +7,8 @@ import qs.services
 import Quickshell.Bluetooth as QsBluetooth
 
 BaseMenu {
-    title: "Bluetooth"
-    description: "Manage Bluetooth devices and connections."
+    title: Translations.tr("settings.bluetooth")
+    description: Translations.tr("settings.manage_bluetooth")
 
     BaseCard {
         BaseRowCard {
@@ -16,7 +16,7 @@ BaseMenu {
             verticalPadding: Bluetooth.enabled ? 10 : 0
             cardMargin: 0
             StyledText {
-                text: powerSwitch.checked ? "Power: On" : "Power: Off"
+                text: powerSwitch.checked ? Translations.tr("settings.bluetooth_power_on") : Translations.tr("settings.bluetooth_power_off")
                 font.pixelSize: 16
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -38,12 +38,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Discoverable"
+                    text: Translations.tr("settings.switch_discoverable")
                     font.pixelSize: 16
                     color: Appearance.colors.m3on_background
                 }
                 StyledText {
-                    text: "Allow other devices to find this device."
+                    text: Translations.tr("settings.switch_discoverable_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
                 }
@@ -64,12 +64,12 @@ BaseMenu {
             ColumnLayout {
                 spacing: 2
                 StyledText {
-                    text: "Scanning"
+                    text: Translations.tr("settings.switch_bluetooth_scanning")
                     font.pixelSize: 16
                     color: Appearance.colors.m3on_background
                 }
                 StyledText {
-                    text: "Search for nearby Bluetooth devices."
+                    text: Translations.tr("settings.switch_bluetooth_scanning_desc")
                     font.pixelSize: 12
                     color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
                 }
@@ -87,7 +87,7 @@ BaseMenu {
     BaseCard {
         visible: Bluetooth.devices.filter(d => d.connected).length > 0
         StyledText {
-            text: "Connected Devices"
+            text: Translations.tr("settings.connected_devices")
             font.pixelSize: 18
             font.bold: true
             color: Appearance.colors.m3on_background
@@ -98,7 +98,9 @@ BaseMenu {
             model: Bluetooth.devices.filter(d => d.connected)
             delegate: BluetoothDeviceCard {
                 device: modelData
-                statusText: modelData.batteryAvailable ? "Connected, " + Math.floor(modelData.battery * 100) + "% left" : "Connected"
+                statusText: modelData.batteryAvailable
+                    ? Translations.tr("settings.connected_battery", Math.floor(modelData.battery * 100))
+                    : Translations.tr("settings.connected")
                 showDisconnect: true
                 showRemove: true
                 usePrimary: true
@@ -109,7 +111,7 @@ BaseMenu {
     BaseCard {
         visible: Bluetooth.enabled
         StyledText {
-            text: "Paired Devices"
+            text: Translations.tr("settings.paired_devices")
             font.pixelSize: 18
             font.bold: true
             color: Appearance.colors.m3on_background
@@ -119,7 +121,7 @@ BaseMenu {
         RowLayout {
             opacity: 0.4
             spacing: 10
-            anchors.horizontalCenter: parent.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter
 
             visible: pairedDevices.count === 0
 
@@ -134,7 +136,7 @@ BaseMenu {
                 Layout.fillHeight: true
 
                 verticalAlignment: Text.AlignVCenter
-                text: "No devices found"
+                text: Translations.tr("settings.no_devices_found")
                 font.bold: true
                 font.pixelSize: 18
                 color: Appearance.colors.m3on_surface_variant
@@ -147,7 +149,7 @@ BaseMenu {
             model: Bluetooth.devices.filter(d => !d.connected && d.paired)
             delegate: BluetoothDeviceCard {
                 device: modelData
-                statusText: "Not connected"
+                statusText: Translations.tr("settings.not_connected")
                 showConnect: true
                 showRemove: true
             }
@@ -157,7 +159,7 @@ BaseMenu {
     BaseCard {
         visible: Bluetooth.defaultAdapter?.enabled
         StyledText {
-            text: "Available Devices"
+            text: Translations.tr("settings.available_devices")
             font.pixelSize: 18
             font.bold: true
             color: Appearance.colors.m3on_background
@@ -169,7 +171,7 @@ BaseMenu {
             height: 40
             StyledText {
                 Layout.alignment: Qt.AlignHCenter
-                text: "No new devices found"
+                text: Translations.tr("settings.no_new_devices")
                 font.pixelSize: 14
                 color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
             }
@@ -180,7 +182,7 @@ BaseMenu {
             model: Bluetooth.devices.filter(d => !d.paired && !d.connected)
             delegate: BluetoothDeviceCard {
                 device: modelData
-                statusText: "Discovered"
+                statusText: Translations.tr("settings.discovered")
                 showConnect: true
                 showPair: true
             }

@@ -6,14 +6,14 @@ import qs.components
 import qs.modules
 import qs.services
 BaseMenu {
-    title: "VPN"
-    description: "Manage your VPN connections."
+    title: Translations.tr("settings.vpn")
+    description: Translations.tr("settings.manage_vpn")
     InfoCard {
         icon: "info"
         backgroundColor: Appearance.colors.m3primary
         contentColor: Appearance.colors.m3on_primary
-        title: "Heads up!"
-        description: "This menu is still being developed, so things might change overtime!"
+        title: Translations.tr("settings.vpn_warning_title")
+        description: Translations.tr("settings.vpn_warning_desc")
     }
 
     InfoCard {
@@ -21,13 +21,13 @@ BaseMenu {
         icon: "error"
         backgroundColor: Appearance.colors.m3error
         contentColor: Appearance.colors.m3on_error
-        title: "Failed to import/connect VPN"
+        title: Translations.tr("settings.failed_vpn")
         description: VPN.lastErrorMessage
     }
 
     BaseCard {
         StyledText {
-            text: "VPN"
+            text: Translations.tr("settings.vpn")
             font.pixelSize: 20
             font.bold: true
             color: Appearance.colors.m3on_background
@@ -40,7 +40,7 @@ BaseMenu {
                 Layout.fillWidth: true
             }
             StyledButton {
-                text: "Import WireGuard config"
+                text: Translations.tr("settings.import_wireguard")
                 onClicked: {
                     Log.info("windows/settings/VPNMenu.qml", "OK " + pathInput.text)
                     VPN.importWireguard(pathInput.text)
@@ -49,7 +49,7 @@ BaseMenu {
         }
         ExpandableCard {
             id: vpnList
-            title: VPN.active?.name ?? "Not connected"
+            title: VPN.active?.name ?? Translations.tr("settings.vpn_not_connected")
             icon: "vpn_key"
             Repeater {
                 model: VPN.connections
@@ -64,7 +64,8 @@ BaseMenu {
                         color: Appearance.colors.m3on_background
                     }
                     MouseArea {
-                        anchors.fill: parent
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                         onClicked: {
                             if (modelData.active) VPN.disconnectVpn();
                             else VPN.connectVpn(modelData.name);

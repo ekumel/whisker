@@ -11,12 +11,19 @@ Singleton {
 
     readonly property string defaultDirectory: Quickshell.env("HOME") + "/Pictures/wallpapers"
 
+    function _stripTrailingSlash(p) {
+        if (!p) return p;
+        while (p.length > 1 && p.endsWith("/")) p = p.substring(0, p.length - 1);
+        return p;
+    }
+
     readonly property string directory: {
         var dir = Preferences.theme.wallpaperDirectory;
         if (!dir || dir === "")
             return defaultDirectory;
         if (dir.startsWith("~"))
-            return Quickshell.env("HOME") + dir.substring(1);
+            dir = Quickshell.env("HOME") + dir.substring(1);
+        dir = _stripTrailingSlash(dir);
         return dir;
     }
 
@@ -24,8 +31,37 @@ Singleton {
     property bool listLoaded: false
 
     function listDir() {
-        listProc.command = ["sh", "-c", "ls -1 -- \"" + directory + "\" 2>/dev/null"];
-        listProc.running = true;
+        checkProc.command = ["sh", "-c", "[ -d \"" + directory + "\" ] && echo OK || echo MISSING"];
+        checkProc.running = true;
+    }
+
+    function _effectiveDir() {
+        // Fall back to defaultDirectory if the configured one is missing.
+        // Common cause: stale `theme.wallpaperDirectory` (renamed/moved folder,
+        // wrong case on a case-sensitive filesystem, trailing slash etc.).
+        if (directory === defaultDirectory) return directory;
+        return _lastDirOk ? directory : defaultDirectory;
+    }
+
+    // Cached result of the last `listDir()` existence check. Optimistically
+    // true so that the initial synchronous reads (before checkProc finishes)
+    // don't temporarily drop the user back to the default directory.
+    property bool _lastDirOk: true
+
+    Process {
+        id: checkProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                rotation._lastDirOk = text.trim() === "OK";
+                if (!rotation._lastDirOk) {
+                    Log.warn("WallpaperRotation", "Configured wallpaper directory does not exist: "
+                        + rotation.directory + " — falling back to " + rotation.defaultDirectory);
+                }
+                var d = rotation._effectiveDir();
+                listProc.command = ["sh", "-c", "ls -1 -- \"" + d + "\" 2>/dev/null"];
+                listProc.running = true;
+            }
+        }
     }
 
     Process {
@@ -39,7 +75,7 @@ Singleton {
                 for (var i = 0; i < raw.length; i++) {
                     var name = raw[i].trim();
                     if (name.length === 0) continue;
-                    var fullPath = rotation.directory + "/" + name;
+                    var fullPath = rotation._effectiveDir() + "/" + name;
                     var ext = name.toLowerCase().split(".").pop();
                     if (imageExts.indexOf(ext) !== -1 || videoExts.indexOf(ext) !== -1) {
                         out.push(fullPath);
@@ -126,6 +162,41 @@ Singleton {
                 command: ["whisker", "prefs", "set", "theme.rotationLastIndex", idx.toString()]
             });
         }
+        pushToGreeter(next);
+    }
+
+    // Push the user's current wallpaper into /var/lib/whisker/wallpapers/<USER>
+    // so the greetd greeter (running as the `greeter` user with no access to
+    // $HOME) can render it as a static background.
+    //
+    // /var/lib/whisker/wallpapers is owned by root:root 0755 -- users cannot
+    // write into it directly, so we delegate to the `whisker` binary which
+    // owns that path (typically setuid / polkit-helpered). This mirrors the
+    // existing pattern used by UserMenu.qml for the profile icon:
+    //
+    //     `whisker users <USER> icon <path>`
+    //
+    // The greeter-side handler for the `wallpaper` subcommand is expected to:
+    //   - for images:  copy/symlink the file to /var/lib/whisker/wallpapers/<USER>
+    //   - for videos:  extract a single frame at theme.videoWallpaper.fps via
+    //                  ffmpeg (same fps as mpvpaper) and write a JPEG there
+    //   - chmod 0644 so the `greeter` user can read it
+    //
+    // Gated on `Preferences.misc.applyWallpaperToGreeter` so users can opt out.
+    function pushToGreeter(path) {
+        if (!Preferences.misc.applyWallpaperToGreeter) return;
+        if (!path || path === "") return;
+
+        var user = Quickshell.env("USER");
+        if (!user || user === "") {
+            Log.warn("WallpaperRotation", "pushToGreeter: USER env is empty, skipping");
+            return;
+        }
+
+        Quickshell.execDetached({
+            command: ["whisker", "users", user, "wallpaper", path]
+        });
+        Log.info("WallpaperRotation", "pushToGreeter: " + path + " for " + user);
     }
 
     Component.onCompleted: listDir()

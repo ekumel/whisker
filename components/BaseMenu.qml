@@ -27,6 +27,7 @@ Item {
     }
     property string title: "Settings"
     property string description: ""
+    property int maxContentWidth: 1000
     default property alias content: stackedSections.data
     Item {
         id: headerArea
@@ -59,8 +60,7 @@ Item {
             }
             StyledRectangle {
                 id: hr
-                anchors.left: parent.left
-                anchors.right: parent.right
+                Layout.fillWidth: true
                 implicitHeight: 1
                 color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
             }
@@ -86,9 +86,10 @@ Item {
             id: mainContent
             width: mainScroll.width
             height: mainContent.childrenRect.height
-            Column {
+            ColumnLayout {
                 id: stackedSections
-                width: Math.min(mainScroll.width, 1000)
+                Layout.fillWidth: true
+                width: Math.min(mainScroll.width, baseMenu.maxContentWidth)
                 x: (mainContent.width - width) / 2
                 spacing: 16
             }

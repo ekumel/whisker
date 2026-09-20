@@ -8,8 +8,8 @@ import qs.services
 
 BaseMenu {
     id: root
-    title: "Network"
-    description: "Manage network connections."
+    title: Translations.tr("settings.network")
+    description: Translations.tr("settings.manage_network")
     
     enum NMState {
         Wifi, 
@@ -23,8 +23,7 @@ BaseMenu {
     property int state: NetworkMenu.Wifi
 
     Item {
-        anchors.left: parent.left
-        anchors.right: parent.right
+        Layout.fillWidth: true
         height: bg.height
 
         StyledRectangle {
@@ -40,7 +39,7 @@ BaseMenu {
             anchors.verticalCenter: parent.verticalCenter
             StyledButton {
                 icon: "signal_wifi_4_bar"
-                text: "Wi-Fi"
+                text: Translations.tr("settings.wifi_tab")
                 iconSize: 28
                 iconGap: 10
                 radius: 200
@@ -56,7 +55,7 @@ BaseMenu {
             }
             StyledButton {
                 icon: "settings_ethernet"
-                text: "Ethernet"
+                text: Translations.tr("settings.ethernet_tab")
                 iconSize: 28
                 iconGap: 10
                 radius: 200
@@ -76,6 +75,7 @@ BaseMenu {
 
     ColumnLayout {
         id: wifiMenu
+        Layout.fillWidth: true
         visible: root.state === NetworkMenu.Wifi
         opacity: visible ? 1 : 0
         scale: visible ? 1 : 0.95
@@ -91,10 +91,6 @@ BaseMenu {
                 easing.type: Appearance.animation.easing
             }
         }
-        anchors {
-            left: parent.left
-            right: parent.right
-        }
         
         BaseCard {
             BaseRowCard {
@@ -102,7 +98,7 @@ BaseMenu {
                 verticalPadding: Network.wifiEnabled ? 10 : 0
                 cardMargin: 0
                 StyledText {
-                    text: powerSwitch.checked ? "Wi-Fi: On" : "Wi-Fi: Off"
+                    text: powerSwitch.checked ? Translations.tr("settings.wifi_status_on") : Translations.tr("settings.wifi_status_off")
                     font.pixelSize: 16
                     font.bold: true
                     color: Appearance.colors.m3on_background
@@ -123,12 +119,12 @@ BaseMenu {
                 ColumnLayout {
                     spacing: 2
                     StyledText {
-                        text: "Scanning"
+                        text: Translations.tr("settings.scanning_label")
                         font.pixelSize: 16
                         color: Appearance.colors.m3on_background
                     }
                     StyledText {
-                        text: "Search for nearby Wi-Fi networks."
+                        text: Translations.tr("settings.scanning_desc")
                         font.pixelSize: 12
                         color: Colors.opacify(Appearance.colors.m3on_background, 0.6)
                     }
@@ -148,14 +144,14 @@ BaseMenu {
             icon: "error"
             backgroundColor: Appearance.colors.m3error
             contentColor: Appearance.colors.m3on_error
-            title: "Failed to connect to " + Network.lastNetworkAttempt
+            title: Translations.tr("settings.failed_to_connect", Network.lastNetworkAttempt)
             description: root.errorMessage
         }
 
         BaseCard {
             visible: !!Network.wifiNetwork
             StyledText {
-                text: "Active Connection"
+                text: Translations.tr("settings.active_connection")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -173,7 +169,7 @@ BaseMenu {
         BaseCard {
             visible: Network.connections.filter(c => c.type === "ethernet").length > 0
             StyledText {
-                text: "Ethernet"
+                text: Translations.tr("settings.ethernet_tab")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -192,7 +188,7 @@ BaseMenu {
         BaseCard {
             visible: Network.wifiEnabled
             StyledText {
-                text: "Available Wi-Fi Networks"
+                text: Translations.tr("settings.available_wifi_networks")
                 font.pixelSize: 18
                 font.bold: true
                 color: Appearance.colors.m3on_background
@@ -201,7 +197,7 @@ BaseMenu {
             RowLayout {
                 opacity: 0.4
                 spacing: 10
-                anchors.horizontalCenter: parent.horizontalCenter
+                Layout.alignment: Qt.AlignHCenter
 
                 visible: Network.wifiEnabled &&
                         Network.wifiDevice &&
@@ -219,7 +215,7 @@ BaseMenu {
                     Layout.fillHeight: true
 
                     verticalAlignment: Text.AlignVCenter
-                    text: "No networks found"
+                    text: Translations.tr("settings.no_networks_found")
                     font.bold: true
                     font.pixelSize: 18
                     color: Appearance.colors.m3on_surface_variant
@@ -241,6 +237,7 @@ BaseMenu {
     }
     ColumnLayout {
         id: ethernetMenu
+        Layout.fillWidth: true
         visible: root.state === NetworkMenu.Ethernet
         opacity: visible ? 1 : 0
         scale: visible ? 1 : 0.95
@@ -256,16 +253,12 @@ BaseMenu {
                 easing.type: Appearance.animation.easing
             }
         }
-        anchors {
-            left: parent.left
-            right: parent.right
-        }
         
         BaseCard {
             RowLayout {
                 opacity: 0.4
                 spacing: 10
-                anchors.horizontalCenter: parent.horizontalCenter
+                Layout.alignment: Qt.AlignHCenter
 
                 MaterialIcon {
                     icon: "construction"
@@ -280,13 +273,13 @@ BaseMenu {
                     Layout.fillHeight: true
 
                     StyledText {
-                        text: "Work in progress"
+                        text: Translations.tr("settings.work_in_progress")
                         font.bold: true
                         font.pixelSize: 18
                         color: Appearance.colors.m3on_surface_variant
                     }
                     StyledText {
-                        text: "This page is being worked on, check again on future updates!"
+                        text: Translations.tr("settings.work_in_progress_desc")
                         font.pixelSize: 14
                         color: Appearance.colors.m3on_surface_variant
                     }
